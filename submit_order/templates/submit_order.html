@@ -1,0 +1,234 @@
+{% load static  %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corporate Clothes Order System</title>
+    <link rel="stylesheet" href="{% static 'css/submitorder.css'%}">
+</head>
+<body>
+    <div class="container">
+        <h1>Corporate Clothes Order</h1>
+        <form id="orderForm">
+            <!-- Section 1: Customer Details -->
+            <section class="form-section">
+                <h2>Customer Details</h2>
+                <div class="form-group">
+                    <label for="fullName">Full Name*</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="companyName">Company Name*</label>
+                    <input type="text" id="companyName" name="companyName" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email*</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number*</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="role">Your Role in Company*</label>
+                    <select id="role" name="role" required>
+                        <option value="">Select your role</option>
+                        <option value="hr">HR Manager</option>
+                        <option value="admin">Administrator</option>
+                        <option value="purchasing">Purchasing Department</option>
+                        <option value="manager">Department Manager</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group" id="otherRoleGroup" style="display: none;">
+                    <label for="otherRole">Please specify your role*</label>
+                    <input type="text" id="otherRole" name="otherRole">
+                </div>
+            </section>
+
+            <!-- Section 2: Order Options -->
+            <section class="form-section">
+                <h2>Order Options</h2>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="hasCustomSizes" name="hasCustomSizes"> Include Custom Sizes
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="hasNametags" name="hasNametags"> Include Nametags
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="deliveryDate">Estimated Completion Date*</label>
+                    <input type="date" id="deliveryDate" name="deliveryDate" required>
+                </div>
+            </section>
+
+            <!-- Section 3: Standard Sizes -->
+            <section class="form-section">
+                <h2>Standard Sizes</h2>
+                <div class="form-group">
+                    <label>Standard Size Quantities</label>
+                    <a class="view-size-chart">View Size Chart</a>
+                </div>
+                
+                <h3>Male</h3>
+                <div class="size-grid">
+                    <div class="form-group">
+                        <label for="maleS">Size S</label>
+                        <input type="number" id="maleS" name="maleS" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="maleM">Size M</label>
+                        <input type="number" id="maleM" name="maleM" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="maleL">Size L</label>
+                        <input type="number" id="maleL" name="maleL" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="maleXL">Size XL</label>
+                        <input type="number" id="maleXL" name="maleXL" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="maleXXL">Size XXL</label>
+                        <input type="number" id="maleXXL" name="maleXXL" min="0" value="0">
+                    </div>
+                </div>
+                
+                <h3>Female</h3>
+                <div class="size-grid">
+                    <div class="form-group">
+                        <label for="femaleS">Size S</label>
+                        <input type="number" id="femaleS" name="femaleS" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="femaleM">Size M</label>
+                        <input type="number" id="femaleM" name="femaleM" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="femaleL">Size L</label>
+                        <input type="number" id="femaleL" name="femaleL" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="femaleXL">Size XL</label>
+                        <input type="number" id="femaleXL" name="femaleXL" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="femaleXXL">Size XXL</label>
+                        <input type="number" id="femaleXXL" name="femaleXXL" min="0" value="0">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Custom Sizes (conditionally shown) -->
+            <section id="customSizesSection" class="form-section" style="display: none;">
+                <h2>Custom Sizes</h2>
+                <div class="form-group">
+                    <label for="maleCustomQty">Male Custom Size Quantity*</label>
+                    <input type="number" id="maleCustomQty" name="maleCustomQty" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="femaleCustomQty">Female Custom Size Quantity*</label>
+                    <input type="number" id="femaleCustomQty" name="femaleCustomQty" min="0" value="0">
+                </div>
+                
+                <div id="customSizeEntries"></div>
+            </section>
+
+            <!-- Section 5: Nametags (conditionally shown) -->
+            <section id="nametagsSection" class="form-section" style="display: none;">
+                <h2>Nametags</h2>
+                <div id="nametagEntries"></div>
+            </section>
+
+            <!-- Buttons -->
+            <section class="form-section button-group">
+                <button type="button" id="previewBtn" class="btn-secondary">Preview Order</button>
+                <button type="submit" class="btn-primary">Submit Order</button>
+                <button type="reset" class="btn-secondary">Reset Form</button>
+            </section>
+        </form>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Order Preview</h2>
+            <div id="previewContent"></div>
+            <div class="button-group">
+                <button id="closePreview" class="btn-secondary">Close</button>
+                <button id="confirmOrder" class="btn-primary">Confirm Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Size Chart Modal -->
+    <div id="sizeChartModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Standard Size Chart (in inches)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Size</th>
+                        <th>Chest</th>
+                        <th>Waist</th>
+                        <th>Hip</th>
+                        <th>Sleeve</th>
+                        <th>Neck</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>S</td>
+                        <td>34-36</td>
+                        <td>28-30</td>
+                        <td>34-36</td>
+                        <td>32</td>
+                        <td>14-14.5</td>
+                    </tr>
+                    <tr>
+                        <td>M</td>
+                        <td>38-40</td>
+                        <td>32-34</td>
+                        <td>38-40</td>
+                        <td>33</td>
+                        <td>15-15.5</td>
+                    </tr>
+                    <tr>
+                        <td>L</td>
+                        <td>42-44</td>
+                        <td>36-38</td>
+                        <td>42-44</td>
+                        <td>34</td>
+                        <td>16-16.5</td>
+                    </tr>
+                    <tr>
+                        <td>XL</td>
+                        <td>46-48</td>
+                        <td>40-42</td>
+                        <td>46-48</td>
+                        <td>35</td>
+                        <td>17-17.5</td>
+                    </tr>
+                    <tr>
+                        <td>XXL</td>
+                        <td>50-52</td>
+                        <td>44-46</td>
+                        <td>50-52</td>
+                        <td>36</td>
+                        <td>18-18.5</td>
+                    </tr>
+                </tbody>
+            </table>
+            <button id="closeSizeChart" class="btn-secondary">Close</button>
+        </div>
+    </div>
+
+    <script src="{% static 'js/submitorder.js' %}"></script>
+</body>
+</html>

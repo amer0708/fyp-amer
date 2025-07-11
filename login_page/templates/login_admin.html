@@ -1,0 +1,39 @@
+{% load static  %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glassmorphism Login Form</title>
+  <link rel="stylesheet" href="{% static 'css/style.css'%}">
+  <script>
+    function redirectToPage() {
+      const selectedOption = document.querySelector('input[name="options"]:checked');
+      if (selectedOption) {
+        window.location.href = selectedOption.value;
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="wrapper">
+    <form action="#">
+      <h2>Login As Admin</h2>
+      <div class="radio-group">
+        <label><input type="radio" name="options" value="{%url 'login_admin'%}" onclick="redirectToPage()"> Admin</label>
+        <label><input type="radio" name="options" value="{%url 'login_customer'%}" onclick="redirectToPage()"> Customer</label>
+      </div>
+      <div class="input-field">
+        <input type="text" required>
+        <label>Enter your email</label>
+      </div>
+      <div class="input-field">
+        <input type="password" required>
+        <label>Enter your password</label>
+      </div>
+
+      <button type="submit">Log In</button>
+    </form>
+  </div>
+</body>
+</html>

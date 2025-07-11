@@ -1,0 +1,281 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Size Charts</title>
+    <link rel="stylesheet" href="{% static 'css/managesizechart.css' %}">
+</head>
+<body>
+    <<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Manage Size Charts</h1>
+        <a href="/admin_dashboard" class="btn-secondary" style="text-decoration: none;">Back to Dashboard</a>
+    </div>
+        
+        <div class="form-section">
+            <h2>{% if edit_chart %}Edit Size Chart (Name & Measurements Only){% else %}Add New Size Chart{% endif %}</h2>
+            <form id="sizeChartForm" method="POST" action="{% url 'size_chart_editor' %}">
+                {% csrf_token %}
+                {% if edit_chart %}
+                <input type="hidden" name="chartId" value="{{ edit_chart.id }}">
+                {% endif %}
+                <div class="form-group">
+                    <label for="chartName">Chart Name*</label>
+                    <input type="text" id="chartName" name="chartName" value="{% if edit_chart %}{{ edit_chart.name }}{% endif %}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gender">Gender*</label>
+                    <select id="gender" name="gender" required {% if edit_chart %}disabled{% endif %}>
+                        <option value="">Select Gender</option>
+                        <option value="male" {% if edit_chart and edit_chart.gender == 'male' %}selected{% endif %}>Male</option>
+                        <option value="female" {% if edit_chart and edit_chart.gender == 'female' %}selected{% endif %}>Female</option>
+                        <option value="unisex" {% if edit_chart and edit_chart.gender == 'unisex' %}selected{% endif %}>Unisex</option>
+                    </select>
+                    {% if edit_chart %}
+                    <input type="hidden" name="gender" value="{{ edit_chart.gender }}">
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="sizeType">Size Type*</label>
+                    <select id="sizeType" name="sizeType" required {% if edit_chart %}disabled{% endif %}>
+                        <option value="">Select Size Type</option>
+                        <option value="standard" {% if edit_chart and edit_chart.size_type == 'standard' %}selected{% endif %}>Standard (S, M, L, XL, XXL)</option>
+                        <option value="numeric" {% if edit_chart and edit_chart.size_type == 'numeric' %}selected{% endif %}>Numeric (28, 30, 32, etc.)</option>
+                    </select>
+                    {% if edit_chart %}
+                    <input type="hidden" name="sizeType" value="{{ edit_chart.size_type }}">
+                    {% endif %}
+                </div>
+                
+                <div id="sizeFieldsContainer"></div>
+                
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">{% if edit_chart %}Update Size Chart{% else %}Save Size Chart{% endif %}</button>
+                    <button type="button" id="resetForm" class="btn-secondary">{% if edit_chart %}Cancel{% else %}Reset{% endif %}</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="form-section">
+            <h2>Existing Size Charts</h2>
+            <div id="sizeChartsList">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Gender</th>
+                            <th>Size Type</th>
+                            <th>Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chartsTableBody">
+                        {% for chart in size_charts %}
+                        <tr {% if chart.is_active %}class="active-chart"{% endif %}>
+                            <td>{{ chart.name }}</td>
+                            <td>{{ chart.gender|title }}</td>
+                            <td>{{ chart.size_type|title }}</td>
+                            <td>
+                                <input type="checkbox" {% if chart.is_active %}checked{% endif %} onclick="window.location.href='{% url 'size_chart_editor' %}?toggle_active={{ chart.id }}'">
+                            </td>
+                            <td class="actions">
+                                <button class="btn-secondary" onclick="viewSizeChart({{ chart.id }})">View</button>
+                                <button class="btn-secondary" onclick="editSizeChart({{ chart.id }})">Edit</button>
+                                <button class="btn-secondary" onclick="if(confirm('Are you sure?')) window.location.href='{% url 'size_chart_editor' %}?delete={{ chart.id }}'">Delete</button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5">No size charts found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Modal -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('viewModal').style.display='none'">&times;</span>
+            <div id="viewModalContent"></div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/sizeChartAdmin.js' %}"></script>
+    <script>
+        // Initialize form fields generation
+        document.addEventListener('DOMContentLoaded', function() {
+            const sizeTypeSelect = document.getElementById('sizeType');
+            if (sizeTypeSelect) {
+                sizeTypeSelect.addEventListener('change', function() {
+                    generateSizeFields(this.value);
+                });
+                
+                // If in edit mode, populate the form with existing data
+                {% if edit_chart %}
+                generateSizeFields('{{ edit_chart.size_type }}');
+                populateFormWithData({{ edit_chart.measurements|safe }});
+                {% endif %}
+            }
+        });
+        
+        // Populate form with existing data
+        function populateFormWithData(measurements) {
+            const sizes = Object.keys(measurements);
+            const measurementTypes = sizes.length > 0 ? Object.keys(measurements[sizes[0]]) : [];
+            
+            sizes.forEach(size => {
+                measurementTypes.forEach(measurement => {
+                    const inputName = `size_${size}_${measurement}`;
+                    const input = document.querySelector(`input[name="${inputName}"]`);
+                    if (input) {
+                        input.value = measurements[size][measurement];
+                    }
+                });
+            });
+        }
+        
+        // View chart function
+        function viewSizeChart(chartId) {
+            // Fetch chart data from the server
+            fetch(`/editor/get_chart/${chartId}/`)
+                .then(response => response.json())
+                .then(chart => {
+                    const measurements = chart.measurements;
+                    const sizes = Object.keys(measurements);
+                    const measurementTypes = sizes.length > 0 ? Object.keys(measurements[sizes[0]]) : [];
+                    
+                    let html = `
+                        <h3>${chart.name} (${chart.gender})</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Size</th>
+                                    ${measurementTypes.map(m => `<th>${m.charAt(0).toUpperCase() + m.slice(1)}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    sizes.forEach(size => {
+                        html += `<tr><td>${size}</td>`;
+                        measurementTypes.forEach(mType => {
+                            html += `<td>${measurements[size][mType]}</td>`;
+                        });
+                        html += `</tr>`;
+                    });
+                    
+                    html += `</tbody></table>`;
+                    
+                    // Create a modal to display the chart
+                    const modal = document.createElement('div');
+                    modal.className = 'modal';
+                    modal.style.display = 'block';
+                    modal.innerHTML = `
+                        <div class="modal-content" style="max-width: 800px;">
+                            <span class="close" style="cursor:pointer;float:right;font-size:28px;">&times;</span>
+                            ${html}
+                            <div class="button-group" style="margin-top:20px;">
+                                <button class="btn-secondary" onclick="this.parentElement.parentElement.parentElement.style.display='none'">Close</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    modal.querySelector('.close').addEventListener('click', () => {
+                        modal.style.display = 'none';
+                    });
+                    
+                    document.body.appendChild(modal);
+                    
+                    // Close when clicking outside
+                    modal.addEventListener('click', function(e) {
+                        if (e.target === modal) {
+                            modal.style.display = 'none';
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching chart data:', error);
+                    alert('Error loading chart data');
+                });
+        }
+        
+        // Edit chart function
+        function editSizeChart(chartId) {
+            // Redirect to edit mode
+            window.location.href = '{% url "size_chart_editor" %}?edit=' + chartId;
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('viewModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Generate size fields
+        function generateSizeFields(sizeType) {
+            const container = document.getElementById('sizeFieldsContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            const sizes = sizeType === 'standard' 
+                ? ['S', 'M', 'L', 'XL', 'XXL'] 
+                : ['28', '30', '32', '34', '36', '38', '40', '42'];
+            
+            const measurements = ['chest', 'waist', 'hip', 'sleeve'];
+            
+            // Create table
+            const table = document.createElement('table');
+            const thead = document.createElement('thead');
+            const tbody = document.createElement('tbody');
+            
+            // Header row
+            const headerRow = document.createElement('tr');
+            const emptyHeader = document.createElement('th');
+            headerRow.appendChild(emptyHeader);
+            
+            measurements.forEach(function(measurement) {
+                const th = document.createElement('th');
+                th.textContent = measurement.charAt(0).toUpperCase() + measurement.slice(1);
+                headerRow.appendChild(th);
+            });
+            
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            
+            // Size rows
+            sizes.forEach(function(size) {
+                const row = document.createElement('tr');
+                const sizeHeader = document.createElement('th');
+                sizeHeader.textContent = size;
+                row.appendChild(sizeHeader);
+                
+                measurements.forEach(function(measurement) {
+                    const td = document.createElement('td');
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.step = '0.1';
+                    input.name = 'size_' + size + '_' + measurement;
+                    input.placeholder = '0.0';
+                    td.appendChild(input);
+                    row.appendChild(td);
+                });
+                
+                tbody.appendChild(row);
+            });
+            
+            table.appendChild(tbody);
+            container.appendChild(table);
+        }
+    </script>
+</body>
+</html>

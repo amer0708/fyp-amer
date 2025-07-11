@@ -1,0 +1,64 @@
+{% load static  %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Portal - Submit Payment</title>
+    <link rel="stylesheet" href="{% static 'css/payment.css'%}">
+</head>
+<body>
+    <header>
+        <h1>Customer Portal</h1>
+        <nav>
+        <a href="customer_dashboard">Homepage</a>
+        <a href="receivequotation">Price Quotation</a>
+        <a href="payment">Submit Payment</a>
+        <a href="status">Order Status</a>
+        </nav>
+        <div class="user-info">
+            <span id="customer-name">John Doe</span>
+            <span id="company-name">ABC Corporation</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="card">
+            <h2>Submit Deposit Payment Proof</h2>
+            <form id="payment-form">
+                <div class="form-group">
+                    <label>Amount to Pay (70% Deposit)</label>
+                    <div class="highlighted">RM1,750.00</div>
+                </div>
+                <div class="form-group">
+                    <label>Payment Date</label>
+                    <input type="text" id="payment-date" value="2023-11-15" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="payment-proof">Upload Payment Proof (JPG, PNG, PDF - max 5MB)</label>
+                    <input type="file" id="payment-proof" accept=".jpg,.jpeg,.png,.pdf" required>
+                    <div class="file-requirements">Accepted formats: JPG, PNG, PDF. Max size: 5MB</div>
+                </div>
+                <div class="form-group">
+                    <label for="payment-notes">Notes (Optional)</label>
+                    <textarea id="payment-notes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Submit Payment Proof</button>
+            </form>
+            <div id="file-preview-container" class="hidden">
+                <h3>File Preview</h3>
+                <div id="file-preview"></div>
+                <button id="remove-file" class="btn-secondary">Remove File</button>
+            </div>
+            <div id="submission-message" class="hidden">
+                <div class="success-message">
+                    <p>Your payment proof has been submitted successfully!</p>
+                    <p>We will verify your payment and update your order status shortly.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{% static 'js/payment.js' %}"></script>
+</body>
+</html>

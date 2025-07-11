@@ -1,0 +1,131 @@
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.customer-header-info h1 {
+    margin-bottom: 5px;
+}
+
+.customer-header-info p {
+    color: #666;
+}
+
+.admin-nav a {
+    margin-left: 15px;
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.admin-nav a:hover {
+    background-color: #f0f0f0;
+}
+
+.payment-list {
+    display: grid;
+    gap: 20px;
+}
+
+.payment-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+.payment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.order-id {
+    font-weight: bold;
+}
+
+.payment-date {
+    color: #777;
+}
+
+.payment-amount {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.payment-method {
+    margin-bottom: 15px;
+    font-style: italic;
+    color: #555;
+}
+
+.payment-proof img {
+    max-width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.payment-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.verify-btn, .reject-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.verify-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.verify-btn:hover {
+    background-color: #3e8e41;
+}
+
+.reject-btn {
+    background-color: #F44336;
+    color: white;
+}
+
+.reject-btn:hover {
+    background-color: #d32f2f;
+}
+
+.payment-status {
+    padding: 8px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.payment-status.verified {
+    background-color: #D4EDDA;
+    color: #155724;
+}
+
+.payment-status.rejected {
+    background-color: #F8D7DA;
+    color: #721C24;
+}

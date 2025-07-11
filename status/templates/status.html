@@ -1,0 +1,80 @@
+{% load static  %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Portal - Order Status</title>
+    <link rel="stylesheet" href="{% static 'css/status.css'%}">
+</head>
+<body>
+    <header>
+        <h1>Customer Portal</h1>
+        <nav>
+        <a href="customer_dashboard">Homepage</a>
+        <a href="receivequotation">Price Quotation</a>
+        <a href="payment">Submit Payment</a>
+        <a href="status">Order Status</a>
+        </nav>
+        <div class="user-info">
+            <span id="customer-name">John Doe</span>
+            <span id="company-name">ABC Corporation</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="card">
+            <h2>Order Status</h2>
+            <div class="status-container">
+                <div class="status-item active">
+                    <div class="status-icon">
+                        <div class="icon-circle completed"></div>
+                    </div>
+                    <div class="status-details">
+                        <div class="status-title">Quotation Sent</div>
+                        <div class="status-date">2023-11-15</div>
+                    </div>
+                </div>
+                <div class="status-item active">
+                    <div class="status-icon">
+                        <div class="icon-circle completed"></div>
+                    </div>
+                    <div class="status-details">
+                        <div class="status-title">Deposit Submitted</div>
+                        <div class="status-date">2023-11-16</div>
+                    </div>
+                </div>
+                <div class="status-item current">
+                    <div class="status-icon">
+                        <div class="icon-circle in-progress"></div>
+                    </div>
+                    <div class="status-details">
+                        <div class="status-title">Payment Confirmed</div>
+                        <div class="status-date">2023-11-17</div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-icon">
+                        <div class="icon-circle pending"></div>
+                    </div>
+                    <div class="status-details">
+                        <div class="status-title">In Progress</div>
+                        <div class="status-date">-</div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-icon">
+                        <div class="icon-circle pending"></div>
+                    </div>
+                    <div class="status-details">
+                        <div class="status-title">Completed</div>
+                        <div class="status-date">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{% static 'js/status.js' %}"></script>
+</body>
+</html>

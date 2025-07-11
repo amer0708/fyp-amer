@@ -1,0 +1,108 @@
+{% load static  %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Portal - Price Quotation</title>
+    <link rel="stylesheet" href="{% static 'css/receive_quotation.css'%}">
+</head>
+<body>
+    <header>
+        <h1>Customer Portal</h1>
+        <nav>
+            <a href="customer_dashboard">Homepage</a>
+            <a href="receivequotation">Price Quotation</a>
+            <a href="payment">Submit Payment</a>
+            <a href="status">Order Status</a>
+        </nav>
+        <div class="user-info">
+            <span id="customer-name">John Doe</span>
+            <span id="company-name">ABC Corporation</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="card">
+            <h2>Price Quotation</h2>
+            <div class="quotation-receipt">
+                <div class="receipt-header">
+                    <div class="receipt-row">
+                        <span class="label">Customer:</span>
+                        <span class="value" id="receipt-customer-name">John Doe</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="label">Company:</span>
+                        <span class="value" id="receipt-company-name">ABC Corporation</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="label">Quotation Date:</span>
+                        <span class="value" id="quotation-date">2023-11-15</span>
+                    </div>
+                </div>
+
+                <div class="items-table">
+                    <div class="table-header">
+                        <div class="col-desc">Description</div>
+                        <div class="col-qty">Qty</div>
+                        <div class="col-price">Unit Price</div>
+                        <div class="col-total">Total</div>
+                    </div>
+                    <div class="table-row">
+                        <div class="col-desc">Custom Shirt</div>
+                        <div class="col-qty">2</div>
+                        <div class="col-price">RM50.00</div>
+                        <div class="col-total">RM100.00</div>
+                    </div>
+                    <div class="table-row">
+                        <div class="col-desc">Logo Embroidery</div>
+                        <div class="col-qty">1</div>
+                        <div class="col-price">RM20.00</div>
+                        <div class="col-total">RM20.00</div>
+                    </div>
+                    <div class="table-row total-row">
+                        <div class="col-desc">Subtotal</div>
+                        <div class="col-qty"></div>
+                        <div class="col-price"></div>
+                        <div class="col-total">RM120.00</div>
+                    </div>
+                </div>
+
+                <div class="payment-details">
+                    <div class="receipt-row">
+                        <span class="label">Deposit Required (70%):</span>
+                        <span class="value highlighted" id="deposit-amount">RM84.00</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="label">Balance:</span>
+                        <span class="value" id="balance-amount">RM36.00</span>
+                    </div>
+                </div>
+
+                <div class="bank-details">
+                    <h3>Payment Instructions</h3>
+                    <div class="receipt-row">
+                        <span class="label">Bank Name:</span>
+                        <span class="value">National Bank</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="label">Account Name:</span>
+                        <span class="value">XYZ Design Studio</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="label">Account Number:</span>
+                        <span class="value">1234 5678 9012 3456</span>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align:center; margin-top: 2em;">
+                <button id="submit-deposit-btn" style="padding: 0.75em 2em; font-size: 1.1em; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Submit Deposit</button>
+                <button id="reject-quotation-btn" style="padding: 0.75em 2em; font-size: 1.1em; background: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-left: 1em;">Reject</button>
+                <div id="rejection-message" style="display:none; color:#dc3545; margin-top:1em; font-weight:bold;">You have rejected this quotation.</div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{% static 'js/receive_quotation.js' %}"></script>
+</body>
+</html>

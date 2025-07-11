@@ -1,0 +1,42 @@
+{% load static  %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glassmorphism Login Form</title>
+  <link rel="stylesheet" href="{% static 'css/style.css'%}">
+  <script>
+    function redirectToPage() {
+      const selectedOption = document.querySelector('input[name="options"]:checked');
+      if (selectedOption) {
+        window.location.href = selectedOption.value;
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="wrapper">
+    <form action="#">
+      <h2>SignUp</h2>
+      <div class="input-field">
+        <input type="text" required>
+        <label>Full Name</label>
+      </div>
+      <div class="input-field">
+        <input type="password" required>
+        <label>Email address</label>
+      </div>
+      <div class="input-field">
+        <input type="tel" required>
+        <label>Phone</label>
+      </div>
+      <div class="input-field">
+        <input type="password" required>
+        <label>Enter your password</label>
+      </div>
+      <button type="submit">Signup</button>
+    </form>
+  </div>
+</body>
+</html>

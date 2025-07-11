@@ -1,0 +1,275 @@
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #0B3D18;
+    background-color: #F6F2D4;
+    padding: 0;
+    margin: 0;
+}
+
+header {
+    background-color: #0B3D18;
+    color: #F6F2D4;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(11,61,24,0.10);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #F6F2D4;
+}
+
+header nav a {
+    color: #F6F2D4;
+    text-decoration: none;
+    font-weight: 600;
+    margin-right: 2rem;
+    transition: color 0.2s;
+}
+
+header nav a:hover {
+    color: #B3AF87;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.user-info span {
+    margin: 0.2rem 0;
+    color: #B3AF87;
+}
+
+main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Card Styles */
+.card {
+    background-color: #B3AF87;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(11,61,24,0.10);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.card h2 {
+    margin-bottom: 1.5rem;
+    color: #0B3D18;
+    border-bottom: 1px solid #85976C;
+    padding-bottom: 0.5rem;
+}
+
+/* Highlighted Elements */
+.highlighted {
+    background-color: #F6F2D4;
+    font-weight: bold;
+    color: #0B3D18;
+    border: 1px solid #85976C;
+    padding: 0.8rem;
+    border-radius: 8px;
+}
+
+/* Quotation Receipt Styles */
+.quotation-receipt {
+    border: 1px solid #85976C;
+    border-radius: 8px;
+    padding: 1.5rem;
+    background-color: #F6F2D4;
+}
+
+.receipt-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #85976C;
+}
+
+.receipt-row {
+    display: flex;
+    margin: 0.5rem 0;
+}
+
+.receipt-row .label {
+    font-weight: 600;
+    width: 150px;
+    color: #85976C;
+}
+
+.receipt-row .value {
+    flex: 1;
+}
+
+.items-table {
+    margin: 1.5rem 0;
+    border: 1px solid #85976C;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #F6F2D4;
+}
+
+.table-header, .table-row {
+    display: flex;
+    padding: 0.8rem 1rem;
+}
+
+.table-header {
+    background-color: #B3AF87;
+    font-weight: 600;
+    color: #0B3D18;
+}
+
+.table-row {
+    border-bottom: 1px solid #85976C;
+    color: #0B3D18;
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.col-desc {
+    flex: 3;
+}
+
+.col-qty, .col-price, .col-total {
+    flex: 1;
+    text-align: right;
+}
+
+.total-row {
+    font-weight: 600;
+    background-color: #B3AF87;
+}
+
+.bank-details {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #85976C;
+}
+
+.bank-details h3 {
+    margin-bottom: 1rem;
+    color: #0B3D18;
+}
+
+button, .btn-primary {
+    background-color: #0B3D18;
+    color: #F6F2D4;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover, .btn-primary:hover {
+    background-color: #85976C;
+    color: #0B3D18;
+}
+
+.btn-secondary {
+    background-color: #F6F2D4;
+    color: #0B3D18;
+    border: 1px solid #0B3D18;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.btn-secondary:hover {
+    background-color: #B3AF87;
+    color: #0B3D18;
+}
+
+#rejection-message {
+    color: #0B3D18;
+    font-weight: 700;
+    margin-top: 1em;
+    text-align: center;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .user-info {
+        align-items: flex-start;
+        margin-top: 1rem;
+    }
+
+    .receipt-row {
+        flex-direction: column;
+    }
+
+    .receipt-row .label {
+        width: 100%;
+        margin-bottom: 0.3rem;
+    }
+
+    .table-header {
+        display: none;
+    }
+
+    .table-row {
+        flex-direction: column;
+    }
+
+    .col-desc, .col-qty, .col-price, .col-total {
+        text-align: left;
+        margin-bottom: 0.5rem;
+    }
+
+    .col-qty::before {
+        content: "Quantity: ";
+        font-weight: 600;
+    }
+
+    .col-price::before {
+        content: "Unit Price: ";
+        font-weight: 600;
+    }
+
+    .col-total::before {
+        content: "Total: ";
+        font-weight: 600;
+    }
+
+    .total-row {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        padding: 1rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+}

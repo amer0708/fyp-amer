@@ -1,0 +1,32 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Payments</title>
+    <link rel="stylesheet" href="{% static 'css/confirm_payment.css' %}">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <div class="customer-header-info">
+                <h1 id="customer-name">Customer Name</h1>
+                <p id="customer-contact">email@example.com | +1 (555) 123-4567</p>
+            </div>
+            <nav class="admin-nav">
+                <a href="admin_dashboard">Back to Dashboard</a>
+                <a href="review_order">Orders</a>
+                <a href="update_status">Status</a>
+                <a href="submitquotation">Quotation</a>
+            </nav>
+        </header>
+
+        <div class="payment-list">
+            <!-- Payments will be loaded here -->
+        </div>
+    </div>
+
+    <script src="{% static 'js/confirm_payment.js' %}"></script>
+</body>
+</html>

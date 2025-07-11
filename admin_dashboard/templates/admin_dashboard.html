@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css'%}">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>Admin Dashboard</h1>
+            <nav class="admin-nav">
+                <a href="managesizechart">Manage Size Cart</a>
+            </nav>
+        </header>
+        <main class="customer-selection">
+            <div class="search-section">
+                <input type="text" id="customer-search" placeholder="Search customers...">
+                <button id="search-btn">Search</button>
+            </div>
+            <div class="customer-list-container">
+                <div class="customer-list">
+                    <!-- Customer cards will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="{% static 'js/admin_dashboard.js' %}"></script>
+</body>
+</html>

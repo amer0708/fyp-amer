@@ -1,0 +1,212 @@
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #F6F2D4;
+    color: #0B3D18;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #0B3D18;
+    color: #F6F2D4;
+    padding: 0.7rem 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(11,61,24,0.10);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: #F6F2D4;
+}
+
+header nav a {
+    color: #F6F2D4;
+    text-decoration: none;
+    font-weight: 600;
+    margin-right: 1.2rem;
+    transition: color 0.2s;
+    font-size: 1rem;
+}
+
+header nav a:hover {
+    color: #B3AF87;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.user-info span {
+    color: #B3AF87;
+    font-size: 0.95rem;
+}
+
+main {
+    padding: 1.2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Card Styles */
+.card {
+    background-color: #B3AF87;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(11,61,24,0.08);
+    padding: 1.2rem 1rem 1rem 1rem;
+    margin: 1.2rem auto;
+    max-width: 700px;
+    width: 100%;
+}
+
+.card h2 {
+    color: #0B3D18;
+    border-bottom: 1px solid #85976C;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.3rem;
+}
+
+/* Order Status Styles */
+.status-container {
+    background-color: #F6F2D4;
+    border-radius: 7px;
+    padding: 1.2rem;
+    box-shadow: 0 2px 8px rgba(11,61,24,0.07);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.1rem;
+}
+
+/* Remove vertical timeline line */
+.status-item::before {
+    content: none !important;
+    display: none !important;
+}
+
+.status-item.active::before {
+    background-color: #27ae60;
+}
+
+.status-icon {
+    margin-right: 1rem;
+}
+
+.icon-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    border: 2px solid #85976C;
+    background-color: #F6F2D4;
+}
+
+.icon-circle.completed {
+    background-color: #85976C;
+    border-color: #0B3D18;
+}
+
+.icon-circle.in-progress {
+    background-color: #B3AF87;
+    border-color: #0B3D18;
+}
+
+.icon-circle.pending {
+    background-color: #F6F2D4;
+    border-color: #85976C;
+}
+
+.status-details {
+    flex: 1;
+}
+
+.status-title {
+    font-size: 0.98rem;
+    color: #0B3D18;
+    font-weight: 600;
+}
+
+.status-date {
+    color: #85976C;
+    font-size: 0.92rem;
+}
+
+.status-item.current .status-title {
+    color: #3498db;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .user-info {
+        align-items: flex-start;
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        padding: 1rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+nav {
+    display: flex;
+    gap: 1rem;
+    margin: 0 1rem;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+nav a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    nav {
+        margin: 1rem 0;
+    }
+}

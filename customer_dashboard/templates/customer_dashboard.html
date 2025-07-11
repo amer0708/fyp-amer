@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/customer_dashboard.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar"><i class="fa fa-bars"></i></button>
+    <div class="customer-sidebar" id="customerSidebar">
+        <div class="sidebar-logo">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="dashboard-logo" style="width:48px;height:48px;">
+            <span class="dashboard-title sidebar-title">Waniey J. <span style="color:#FFD600;">Studio.</span></span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/customer_dashboard" class="nav-btn"><i class="fa fa-home sidebar-icon"></i><span class="sidebar-link-text">Dashboard</span></a>
+            <a href="/status" class="nav-btn"><i class="fa fa-list sidebar-icon"></i><span class="sidebar-link-text">Order Status</span></a>
+            <a href="/customize_clothes" class="nav-btn"><i class="fa fa-pen sidebar-icon"></i><span class="sidebar-link-text">Customize Clothes</span></a>
+            <a href="/logout" class="nav-btn"><i class="fa fa-sign-out-alt sidebar-icon"></i><span class="sidebar-link-text">Logout</span></a>
+        </nav>
+    </div>
+    <div class="customer-main-content" id="customerMainContent">
+        <main>
+            <h2>Your Orders</h2>
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="customer-orders-body">
+                    <!-- Orders will be loaded here by JS -->
+                </tbody>
+            </table>
+        </main>
+        <!-- View Order Modal -->
+        <div id="viewOrderModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close" id="closeViewOrderModal">&times;</span>
+                <div id="order-details-content">
+                    <!-- Order details and receive quotation will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="/customize_clothes" class="fab-customize" title="Customize Clothes">
+        <i class="fa fa-pen" style="font-size:36px;color:#fff;"></i>
+    </a>
+    <script src="{% static 'js/customer_dashboard.js' %}"></script>
+    <script>
+    document.getElementById('sidebarToggle').onclick = function() {
+        document.getElementById('customerSidebar').classList.toggle('collapsed');
+        document.getElementById('customerMainContent').classList.toggle('sidebar-collapsed');
+        document.body.classList.toggle('sidebar-collapsed');
+    };
+    </script>
+</body>
+</html>

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
+from decouple import config
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,13 +21,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$#i$!8$8!q%9c5n&-q!h_$towc3dsbj=!=-7l$vy$&c_*bvqio'
+SECRET_KEY = config("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG",default =False,cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOST",default="").split(",")
 
+#admin user
+DJANGO_SUPERUSER_USERNAME=config("DJANGO_SUPERUSER_USERNAME",default="admin")
+DJANGO_SUPERUSER_EMAIL=config("DJANGO_SUPERUSER_EMAIL",default="admin@example.com")
+DJANGO_SUPERUSER_PASSWORD=config("DJANGO_SUPERUSER_PASSWORD",default="admin123")
 
 # Application definition
 
@@ -91,8 +96,12 @@ WSGI_APPLICATION = 'fyp.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config("POSTGRES_DB"),
+        'USER': config("POSTGRES_USER"),
+        'PASSWORD': config("POSTGRES_PASSWORD"),
+        'HOST': config("DB_HOST"),
+        'PORT': config("DB_PORT"),
     }
 }
 

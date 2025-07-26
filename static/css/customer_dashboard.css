@@ -117,14 +117,19 @@ body, html {
     color: #FFD600;
     font-weight: 600;
     border: none;
+    padding: 1.2em 1em;
+    font-size: 1.08em;
 }
 .order-table td {
     color: #fff;
     background: #181818;
     border: none;
+    padding: 1.2em 1em;
+    font-size: 1.08em;
 }
 .order-table tr {
     background: #181818;
+    height: 3.5em;
 }
 .order-table tr:nth-child(even) {
     background: #181818;
@@ -489,4 +494,42 @@ body, html {
 }
 body.sidebar-collapsed .sidebar-toggle {
     left: 15px !important;
+}
+.action-btn {
+    padding: 8px 18px;
+    font-size: 1em;
+    border: none;
+    border-radius: 6px;
+    margin-right: 8px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    outline: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    font-weight: 500;
+    background: #222;
+    color: #FFD600;
+    border: 1px solid #FFD600;
+}
+.quotation-btn {
+    background: #365733;
+    color: #FFD600;
+    border: 1px solid #FFD600;
+}
+.quotation-btn:hover {
+    background: #FFD600;
+    color: #222;
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+}
+.payment-btn {
+    background: #2f4924;
+    color: #fff;
+    border: 1px solid #FFD600;
+}
+.payment-btn:hover {
+    background: #FFD600;
+    color: #181818;
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
 } 

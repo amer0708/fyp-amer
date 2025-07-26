@@ -1,18 +1,33 @@
-{% load static  %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Price Quotation Receipt</title>
+    <title>Price Quotation Generator</title>
     <link rel="stylesheet" href="{% static 'css/submitquotation.css' %}">
+    <style>
+        /* Your existing styles here */
+        .required-field::after { content: " *"; color: red; }
+        #receipt { display: none; margin-top: 30px; }
+        .item-qty { width: 60px; }
+        .btn-primary { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        .btn-secondary { background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        .button-group { margin-top: 20px; display: flex; gap: 10px; }
+        .item-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .item-row input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .remove-item { background-color: #dc3545; color: white; border: none; border-radius: 4px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    </style>
 </head>
 <body>
     <div class="admin-container">
         <header class="admin-header">
             <div class="customer-header-info">
-                <h1 id="customer-name">Customer Name</h1>
-                <p id="customer-contact">email@example.com | +1 (555) 123-4567</p>
+                <h1 id="customer-name">{{ customer.name|default:"Customer Name" }}</h1>
+                <p id="customer-contact">
+                    {{ customer.email|default:"email@example.com" }} | 
+                    {{ customer.phone|default:"+1234567890" }}
+                </p>
             </div>
             <nav class="admin-nav">
                 <a href="/admin_dashboard">Back to Dashboard</a>
@@ -21,127 +36,272 @@
                 <a href="/update_status">Status</a>
             </nav>
         </header>
+        
         <div class="container">
-        <h1>Price Quotation Generator</h1>
-        
-        <div class="form-section">
-            <div class="form-group">
-                <label for="customerName">Customer Name:</label>
-                <input type="text" id="customerName" placeholder="Enter customer name">
-            </div>
+            <h1>Price Quotation Generator</h1>
             
-            <div class="form-group">
-                <label for="companyName">Company Name:</label>
-                <input type="text" id="companyName" placeholder="Enter company name">
-            </div>
-            
-            <div class="form-group">
-                <label for="quotationId">Quotation ID:</label>
-                <input type="text" id="quotationId" placeholder="Q-2023-001" value="Q-2023-001">
-            </div>
-            
-            <div class="form-group">
-                <label for="date">Date:</label>
-                <input type="date" id="date" value="">
-            </div>
-            
-            <h3>Items</h3>
-            <div id="itemsContainer">
-                <div class="item-row">
-                    <input type="text" class="item-desc" placeholder="Description">
-                    <input type="number" class="item-qty" placeholder="Qty" min="1" value="1">
-                    <input type="number" class="item-price" placeholder="Unit Price" min="0" step="0.01">
-                    <button class="remove-item btn-secondary">×</button>
-                </div>
-            </div>
-            
-            <div class="button-group">
-                <button id="addItem" class="btn-secondary">Add Item</button>
-            </div>
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+              {% endfor %}
+            {% endif %}
 
-            <h3>Bank Details</h3>
-            <div class="form-group">
-                <label for="bankName">Bank Name:</label>
-                <input type="text" id="bankName" value="RHB Bank">
-            </div>
-            
-            <div class="form-group">
-                <label for="accountName">Account Name:</label>
-                <input type="text" id="accountName" value="Waniey Tailor">
-            </div>
-            
-            <div class="form-group">
-                <label for="accountNumber">Account Number:</label>
-                <input type="text" id="accountNumber" value="1234-5678-9012">
-            </div>
-            
-            <div class="button-group">
-                <button id="generateReceipt" class="btn-primary">Generate Receipt</button>
-            </div>
-        </div>
-        
-        <div id="receipt" class="receipt-container" style="display: none;">
-            <div class="receipt-header">
-                <h1 class="receipt-title">WANIEY TAILOR</h1>
-                <p class="receipt-subtitle">123 Tailor Street, Kuala Lumpur</p>
-                <p class="receipt-subtitle">Tel: (012) 345-6789 | Email: waniey@tailor.com</p>
-            </div>
-            
-            <div class="receipt-info">
-                <p><strong>QUOTATION:</strong> <span id="receipt-quotation-id">Q-2023-001</span></p>
-                <p><strong>DATE:</strong> <span id="receipt-date">2023-11-15</span></p>
-                <p><strong>CUSTOMER:</strong> <span id="receipt-customer">John Doe</span></p>
-                <p><strong>COMPANY:</strong> <span id="receipt-company">Acme Inc.</span></p>
-            </div>
-            
-            <table id="receipt-items">
-                <thead>
-                    <tr>
-                        <th>DESCRIPTION</th>
-                        <th class="text-right">QTY</th>
-                        <th class="text-right">UNIT PRICE</th>
-                        <th class="text-right">TOTAL</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Items will be added here -->
-                </tbody>
-            </table>
-            
-            <div class="totals">
-                <div class="totals-row">
-                    <span class="totals-label">SUBTOTAL:</span>
-                    <span id="subtotal">RM0.00</span>
+            {% if show_form %}
+            <form id="quotationForm" method="post" action="{% url 'submitquotation:submit_quotation_order' order.id %}">
+                {% csrf_token %}
+                <div class="form-section">
+                    <!-- Customer Information -->
+                    <div class="form-group">
+                        <label for="customerName" class="required-field">Customer Name:</label>
+                        <input type="text" id="customerName" name="customer_name" 
+                               value="{{ customer.name|default:'' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerEmail" class="required-field">Customer Email:</label>
+                        <input type="email" id="customerEmail" name="customer_email" 
+                               value="{{ customer.email|default:'' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone" class="required-field">Customer Phone:</label>
+                        <input type="text" id="customerPhone" name="customer_phone" 
+                               value="{{ customer.phone|default:'' }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="companyName" class="required-field">Company Name:</label>
+                        <input type="text" id="companyName" name="company_name" 
+                               value="{{ quotation.company_name|default:'' }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="date" class="required-field">Date:</label>
+                        <input type="date" id="date" name="date" 
+                               value="{{ current_date|date:'Y-m-d' }}" required>
+                    </div>
+                    
+                    <!-- Items Section -->
+                    <h3 class="required-field">Items</h3>
+                    <div id="itemsContainer">
+                        {% for item in quotation.items %}
+                        <div class="item-row">
+                            <input type="text" class="item-desc" name="item_desc[]" 
+                                   value="{{ item.description|default:'' }}" required>
+                            <input type="number" class="item-qty" name="item_qty[]" 
+                                   value="{{ item.quantity|default:1 }}" min="1" step="1" required>
+                            <input type="number" class="item-price" name="item_price[]" 
+                                   value="{{ item.price|default:0 }}" min="0" step="0.01" required>
+                            <button type="button" class="remove-item btn-secondary">×</button>
+                        </div>
+                        {% empty %}
+                        <div class="item-row">
+                            <input type="text" class="item-desc" name="item_desc[]" placeholder="Description" required>
+                            <input type="number" class="item-qty" name="item_qty[]" value="1" min="1" step="1" required>
+                            <input type="number" class="item-price" name="item_price[]" value="0" min="0" step="0.01" required>
+                            <button type="button" class="remove-item btn-secondary">×</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="button" id="addItem" class="btn-secondary">Add Item</button>
+                    </div>
+
+                    <!-- Bank Details -->
+                    <h3>Bank Details</h3>
+                    <div class="form-group">
+                        <label for="bankName" class="required-field">Bank Name:</label>
+                        <input type="text" id="bankName" name="bank_name" 
+                               value="{{ bank_details.name|default:'RHB Bank' }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="accountName" class="required-field">Account Name:</label>
+                        <input type="text" id="accountName" name="account_name" 
+                               value="{{ bank_details.account_name|default:'Waniey Tailor' }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="accountNumber" class="required-field">Account Number:</label>
+                        <input type="text" id="accountNumber" name="account_number" 
+                               value="{{ bank_details.account_number|default:'1234-5678-9012' }}" required>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="button" id="generateReceipt" class="btn-secondary">Preview Receipt</button>
+                        <button type="submit" id="submitQuotation" class="btn-primary">Submit Quotation</button>
+                    </div>
                 </div>
-                <div class="totals-row">
-                    <span class="totals-label">DEPOSIT (70%):</span>
-                    <span id="deposit">RM0.00</span>
+            </form>
+            {% else %}
+                <p>You have already submitted a quotation for this order. You cannot submit another quotation for the same order.</p>
+            {% endif %}
+            <!-- Receipt Section -->
+            <div id="receipt" class="receipt-container">
+                <div class="receipt-header">
+                    <h1 class="receipt-title">WANIEY TAILOR</h1>
+                    <p class="receipt-subtitle">123 Tailor Street, Kuala Lumpur</p>
+                    <p class="receipt-subtitle">Tel: (012) 345-6789 | Email: waniey@tailor.com</p>
                 </div>
-                <div class="totals-row">
-                    <span class="totals-label">BALANCE DUE:</span>
-                    <span id="balance">RM0.00</span>
+                
+                <div class="receipt-info">
+                    <p><strong>DATE:</strong> <span id="receipt-date"></span></p>
+                    <p><strong>CUSTOMER:</strong> <span id="receipt-customer"></span></p>
+                    <p><strong>COMPANY:</strong> <span id="receipt-company"></span></p>
                 </div>
-            </div>
-            
-            <div class="bank-info">
-                <p><strong>BANK TRANSFER DETAILS:</strong></p>
-                <p>Bank Name: <span id="receipt-bank-name">RHB Bank</span></p>
-                <p>Account Name: <span id="receipt-account-name">Waniey Tailor</span></p>
-                <p>Account Number: <span id="receipt-account-number">1234-5678-9012</span></p>
-            </div>
-            
-            <div class="note">
-                <p>70% deposit required to confirm order. Balance payable upon collection.</p>
-                <p>Thank you for your business!</p>
-            </div>
-            
-            <div class="button-group">
-                <button id="printReceipt" class="btn-primary">Print Receipt</button>
+                
+                <table id="receipt-items">
+                    <thead>
+                        <tr>
+                            <th>DESCRIPTION</th>
+                            <th class="text-right">QTY</th>
+                            <th class="text-right">UNIT PRICE</th>
+                            <th class="text-right">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                
+                <div class="totals">
+                    <div class="totals-row">
+                        <span class="totals-label">SUBTOTAL:</span>
+                        <span id="subtotal">RM0.00</span>
+                    </div>
+                    <div class="totals-row">
+                        <span class="totals-label">DEPOSIT (70%):</span>
+                        <span id="deposit">RM0.00</span>
+                    </div>
+                    <div class="totals-row">
+                        <span class="totals-label">BALANCE DUE:</span>
+                        <span id="balance">RM0.00</span>
+                    </div>
+                </div>
+                
+                <div class="bank-info">
+                    <p><strong>BANK TRANSFER DETAILS:</strong></p>
+                    <p>Bank Name: <span id="receipt-bank-name"></span></p>
+                    <p>Account Name: <span id="receipt-account-name"></span></p>
+                    <p>Account Number: <span id="receipt-account-number"></span></p>
+                </div>
+                
+                <div class="note">
+                    <p>70% deposit required to confirm order. Balance payable upon collection.</p>
+                    <p>Thank you for your business!</p>
+                </div>
+                
+                <div class="button-group">
+                    <button id="printReceipt" class="btn-primary">Print Receipt</button>
+                </div>
             </div>
         </div>
     </div>
-    </div>
-    
-    <script src="{% static 'js/submitquotation.js' %}"></script>
+
+    <script>
+        // Add item functionality
+        document.getElementById('addItem').addEventListener('click', function() {
+            const itemsContainer = document.getElementById('itemsContainer');
+            const newItemRow = document.createElement('div');
+            newItemRow.className = 'item-row';
+            newItemRow.innerHTML = `
+                <input type="text" class="item-desc" name="item_desc[]" placeholder="Description" required>
+                <input type="number" class="item-qty" name="item_qty[]" placeholder="Qty" min="1" value="1" step="1" required>
+                <input type="number" class="item-price" name="item_price[]" placeholder="Unit Price" min="0" step="0.01" required>
+                <button type="button" class="remove-item btn-secondary">×</button>
+            `;
+            itemsContainer.appendChild(newItemRow);
+            
+            // Add event to new remove button
+            newItemRow.querySelector('.remove-item').addEventListener('click', function() {
+                itemsContainer.removeChild(newItemRow);
+            });
+        });
+
+        // Remove item functionality
+        document.querySelectorAll('.remove-item').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemsContainer = document.getElementById('itemsContainer');
+                itemsContainer.removeChild(btn.parentNode);
+            });
+        });
+
+        // Generate Receipt (Preview)
+        document.getElementById('generateReceipt').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            const form = document.getElementById('quotationForm');
+            if (!form.checkValidity()) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Get form values
+            const customerName = document.getElementById('customerName').value;
+            const companyName = document.getElementById('companyName').value;
+            const date = document.getElementById('date').value;
+            const bankName = document.getElementById('bankName').value;
+            const accountName = document.getElementById('accountName').value;
+            const accountNumber = document.getElementById('accountNumber').value;
+
+            // Format date for display
+            const formattedDate = new Date(date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            // Update receipt header
+            document.getElementById('receipt-date').textContent = formattedDate;
+            document.getElementById('receipt-customer').textContent = customerName;
+            document.getElementById('receipt-company').textContent = companyName;
+            document.getElementById('receipt-bank-name').textContent = bankName;
+            document.getElementById('receipt-account-name').textContent = accountName;
+            document.getElementById('receipt-account-number').textContent = accountNumber;
+
+            // Process items
+            const itemRows = document.querySelectorAll('.item-row');
+            const receiptItemsTbody = document.querySelector('#receipt-items tbody');
+            receiptItemsTbody.innerHTML = '';
+            
+            let subtotal = 0;
+            
+            itemRows.forEach(row => {
+                const desc = row.querySelector('.item-desc').value;
+                const qty = parseInt(row.querySelector('.item-qty').value);
+                const price = parseFloat(row.querySelector('.item-price').value);
+                const total = qty * price;
+                
+                subtotal += total;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${desc}</td>
+                    <td class="text-right">${qty}</td>
+                    <td class="text-right">RM${price.toFixed(2)}</td>
+                    <td class="text-right">RM${total.toFixed(2)}</td>
+                `;
+                receiptItemsTbody.appendChild(tr);
+            });
+            
+            // Calculate totals (fixed 70% deposit)
+            const depositAmount = subtotal * 0.7;
+            const balanceDue = subtotal - depositAmount;
+            
+            // Update totals display
+            document.getElementById('subtotal').textContent = `RM${subtotal.toFixed(2)}`;
+            document.getElementById('deposit').textContent = `RM${depositAmount.toFixed(2)}`;
+            document.getElementById('balance').textContent = `RM${balanceDue.toFixed(2)}`;
+            
+            // Show receipt
+            document.getElementById('receipt').style.display = 'block';
+            
+            // Scroll to receipt
+            document.getElementById('receipt').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Print Receipt
+        document.getElementById('printReceipt').addEventListener('click', function() {
+            window.print();
+        });
+    </script>
 </body>
 </html>

@@ -133,6 +133,24 @@ main {
     margin-bottom: 0.5rem;
 }
 
+.form-group input[type="date"] {
+    background: #F6F2D4;
+    color: #0B3D18;
+    border: 1px solid #85976C;
+    width: 100%;
+    padding: 0.8rem 1.2rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    box-sizing: border-box;
+    transition: border 0.2s;
+}
+
+.form-group input[type="date"]:focus {
+    border: 1.5px solid #0B3D18;
+    outline: none;
+}
+
 .file-requirements {
     color: #85976C;
     font-size: 0.98rem;
@@ -259,4 +277,60 @@ main {
 
 .hidden {
     display: none !important;
+}
+
+/* File preview link styles */
+#file-preview a {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.6rem 1.2rem 0.6rem 2.2rem;
+    background: #F6F2D4;
+    color: #0B3D18;
+    border: 1.5px solid #85976C;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    position: relative;
+    transition: background 0.2s, color 0.2s, border 0.2s;
+    box-shadow: 0 2px 8px rgba(11,61,24,0.07);
+    cursor: pointer;
+}
+#file-preview a:hover {
+    background: #B3AF87;
+    color: #0B3D18;
+    border-color: #0B3D18;
+    text-decoration: underline;
+}
+#file-preview a::before {
+    content: '\1F4CE'; /* paperclip emoji as icon */
+    position: absolute;
+    left: 0.7rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    opacity: 0.7;
+}
+#file-preview {
+    margin-bottom: 0.7rem;
+}
+
+.alert {
+    padding: 1em 1.5em;
+    border-radius: 8px;
+    margin-bottom: 1em;
+    font-weight: 500;
+    background: #e6ffe6;
+    color: #0B3D18;
+    border: 1.5px solid #0B3D18;
+}
+.alert-success {
+    background: #e6ffe6;
+    color: #0B3D18;
+    border-color: #4CAF50;
+}
+.alert-error, .alert-danger {
+    background: #ffe6e6;
+    color: #b71c1c;
+    border-color: #b71c1c;
 }

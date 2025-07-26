@@ -1,4 +1,3 @@
-# Create your models here.
 from django.db import models
 import json
 
@@ -20,9 +19,17 @@ class SizeChart(models.Model):
     measurements = models.JSONField()
     is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.get_gender_display()})"
+
+    def get_measurements_display(self):
+        """Format measurements for display"""
+        try:
+            return json.dumps(self.measurements, indent=2)
+        except:
+            return "Invalid measurements data"
     
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-is_active', 'gender', 'size_type', 'name']

@@ -1,4 +1,4 @@
-{% load static  %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,14 +11,14 @@
     <header>
         <h1>Customer Portal</h1>
         <nav>
-            <a href="customer_dashboard">Homepage</a>
-            <a href="receivequotation">Price Quotation</a>
-            <a href="payment">Submit Payment</a>
-            <a href="status">Order Status</a>
+            <a href="/customer_dashboard">Homepage</a>
+            <a href="/receivequotation">Price Quotation</a>
+            <a href="/payment">Submit Payment</a>
+            <a href="/status">Order Status</a>
         </nav>
         <div class="user-info">
-            <span id="customer-name">John Doe</span>
-            <span id="company-name">ABC Corporation</span>
+            <span id="customer-name">{{ customer_name|default:"John Doe" }}</span>
+            <span id="company-name">{{ quotation.company_name|default:"ABC Corporation" }}</span>
         </div>
     </header>
 
@@ -29,15 +29,15 @@
                 <div class="receipt-header">
                     <div class="receipt-row">
                         <span class="label">Customer:</span>
-                        <span class="value" id="receipt-customer-name">John Doe</span>
+                        <span class="value" id="receipt-customer-name">{{ customer_name|default:"John Doe" }}</span>
                     </div>
                     <div class="receipt-row">
                         <span class="label">Company:</span>
-                        <span class="value" id="receipt-company-name">ABC Corporation</span>
+                        <span class="value" id="receipt-company-name">{{ quotation.company_name|default:"ABC Corporation" }}</span>
                     </div>
                     <div class="receipt-row">
                         <span class="label">Quotation Date:</span>
-                        <span class="value" id="quotation-date">2023-11-15</span>
+                        <span class="value" id="quotation-date">{{ quotation.date|default:"2023-11-15" }}</span>
                     </div>
                 </div>
 
@@ -48,34 +48,45 @@
                         <div class="col-price">Unit Price</div>
                         <div class="col-total">Total</div>
                     </div>
-                    <div class="table-row">
-                        <div class="col-desc">Custom Shirt</div>
-                        <div class="col-qty">2</div>
-                        <div class="col-price">RM50.00</div>
-                        <div class="col-total">RM100.00</div>
-                    </div>
-                    <div class="table-row">
-                        <div class="col-desc">Logo Embroidery</div>
-                        <div class="col-qty">1</div>
-                        <div class="col-price">RM20.00</div>
-                        <div class="col-total">RM20.00</div>
-                    </div>
+                    {% if quotation.items %}
+                        {% for item in quotation.items.all %}
+                        <div class="table-row">
+                            <div class="col-desc">{{ item.description }}</div>
+                            <div class="col-qty">{{ item.quantity }}</div>
+                            <div class="col-price">RM{{ item.unit_price|floatformat:2 }}</div>
+                            <div class="col-total">RM{{ item.total_price|floatformat:2 }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="table-row">
+                            <div class="col-desc">Custom Shirt</div>
+                            <div class="col-qty">2</div>
+                            <div class="col-price">RM50.00</div>
+                            <div class="col-total">RM100.00</div>
+                        </div>
+                        <div class="table-row">
+                            <div class="col-desc">Logo Embroidery</div>
+                            <div class="col-qty">1</div>
+                            <div class="col-price">RM20.00</div>
+                            <div class="col-total">RM20.00</div>
+                        </div>
+                    {% endif %}
                     <div class="table-row total-row">
                         <div class="col-desc">Subtotal</div>
                         <div class="col-qty"></div>
                         <div class="col-price"></div>
-                        <div class="col-total">RM120.00</div>
+                        <div class="col-total">RM{{ quotation.subtotal|floatformat:2|default:"120.00" }}</div>
                     </div>
                 </div>
 
                 <div class="payment-details">
                     <div class="receipt-row">
                         <span class="label">Deposit Required (70%):</span>
-                        <span class="value highlighted" id="deposit-amount">RM84.00</span>
+                        <span class="value highlighted" id="deposit-amount">RM{{ quotation.deposit_amount|floatformat:2|default:"84.00" }}</span>
                     </div>
                     <div class="receipt-row">
                         <span class="label">Balance:</span>
-                        <span class="value" id="balance-amount">RM36.00</span>
+                        <span class="value" id="balance-amount">RM{{ quotation.balance_amount|floatformat:2|default:"36.00" }}</span>
                     </div>
                 </div>
 
@@ -83,22 +94,31 @@
                     <h3>Payment Instructions</h3>
                     <div class="receipt-row">
                         <span class="label">Bank Name:</span>
-                        <span class="value">National Bank</span>
+                        <span class="value">{{ quotation.bank_name|default:"National Bank" }}</span>
                     </div>
                     <div class="receipt-row">
                         <span class="label">Account Name:</span>
-                        <span class="value">XYZ Design Studio</span>
+                        <span class="value">{{ quotation.account_name|default:"XYZ Design Studio" }}</span>
                     </div>
                     <div class="receipt-row">
                         <span class="label">Account Number:</span>
-                        <span class="value">1234 5678 9012 3456</span>
+                        <span class="value">{{ quotation.account_number|default:"1234 5678 9012 3456" }}</span>
                     </div>
                 </div>
             </div>
             <div style="text-align:center; margin-top: 2em;">
-                <button id="submit-deposit-btn" style="padding: 0.75em 2em; font-size: 1.1em; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Submit Deposit</button>
-                <button id="reject-quotation-btn" style="padding: 0.75em 2em; font-size: 1.1em; background: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-left: 1em;">Reject</button>
-                <div id="rejection-message" style="display:none; color:#dc3545; margin-top:1em; font-weight:bold;">You have rejected this quotation.</div>
+                <form method="post" action="{% url 'payment:payment' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="quotation_id" value="{{ quotation.quotation_id }}">
+                    <button id="submit-deposit-btn" data-quotation-id="{{ quotation.quotation_id }}" class="{% if payment_rejected or quotation.status == 'rejected' %}disabled-btn{% endif %}" style="padding: 0.75em 2em; font-size: 1.1em; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer;" {% if payment_rejected or quotation.status == 'rejected' %}disabled{% endif %}>Submit Deposit</button>
+                </form>
+                <form method="post" action="/receivequotation/reject/" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="quotation_id" value="{{ quotation.quotation_id }}">
+                    <button id="reject-quotation-btn" name="reject" value="1" class="{% if payment_exists or quotation.status == 'rejected' %}disabled-btn{% endif %}" style="padding: 0.75em 2em; font-size: 1.1em; background: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-left: 1em;" {% if payment_exists or quotation.status == 'rejected' %}disabled{% endif %}>Reject</button>
+                </form>
+                <style>.disabled-btn{background:#ccc!important;color:#888!important;cursor:not-allowed!important;pointer-events:none!important;}</style>
+                <div id="rejection-message" style="display:{% if quotation.status == 'rejected' %}block{% else %}none{% endif %}; color:#dc3545; margin-top:1em; font-weight:bold;">You have rejected this quotation.</div>
             </div>
         </div>
     </main>

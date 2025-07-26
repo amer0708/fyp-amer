@@ -6,6 +6,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corporate Clothes Customizer</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        body {
+            background: #f4f7fa;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2em auto;
+            padding: 2em 1em;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 6px rgba(0,0,0,0.04);
+        }
+        .card, .controls-section, .preview-section {
+            background: #f9fdfb;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(67,160,71,0.07);
+            padding: 1.5em 1.2em;
+            margin-bottom: 1.5em;
+        }
+        .card-header h2 {
+            color: #2e7d32;
+            font-size: 1.3em;
+        }
+        .btn-primary, .order-btn, .preview-btn {
+            background: linear-gradient(90deg, #43a047 0%, #388e3c 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.7em 2em;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 1em;
+            box-shadow: 0 2px 8px rgba(67,160,71,0.08);
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover, .order-btn:hover, .preview-btn:hover {
+            background: linear-gradient(90deg, #388e3c 0%, #43a047 100%);
+            box-shadow: 0 4px 16px rgba(67,160,71,0.13);
+        }
+        .action-buttons {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -15,7 +62,7 @@
 
         <main>
             <div class="customizer-grid">
-                <!-- Preview and Controls Column -->
+                <!-- Left Column: Design Preview and Summary -->
                 <section class="card preview-section">
                     <div class="card-header">
                         <h2>Design Preview</h2>
@@ -25,19 +72,19 @@
                         <div class="shirt-preview">
                             <div class="shirt-view active" data-view="front">
                                 {% include "front_view.html" %}
-                                <span class="view-label">Front</span>
+                                <span class="view-label"></span>
                             </div>
                             <div class="shirt-view" data-view="back">
                                 {% include "back.html" %}
-                                <span class="view-label">Back</span>
+                                <span class="view-label"></span>
                             </div>
                             <div class="shirt-view" data-view="right-shoulder">
                                 {% include "right_side.html" %}
-                                <span class="view-label">Right Shoulder</span>
+                                <span class="view-label"></span>
                             </div>
                             <div class="shirt-view" data-view="left-shoulder">
                                 {% include "left_side.html" %}
-                                <span class="view-label">Left Shoulder</span>
+                                <span class="view-label"></span>
                             </div>
                         </div>
 
@@ -48,154 +95,168 @@
                             <button class="view-btn" data-view="right-shoulder">Right Shoulder</button>
                         </div>
 
-                        <!-- Design Elements Section -->
-                        <div class="design-element-section">
-                            <button id="add-text-btn" class="add-text-btn">Add Text</button>
-                            <div class="form-group">
-                                <label for="design-image-upload">Add Logo/Image</label>
-                                <div class="upload-area" id="design-image-upload-area">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                        <polyline points="17 8 12 3 7 8"></polyline>
-                                        <line x1="12" y1="3" x2="12" y2="15"></line>
-                                    </svg>
-                                    <span>Click to upload image</span>
-                                    <input type="file" id="design-image-upload" class="hidden-input" accept="image/*">
-                                </div>
+                        <!-- Design Summary -->
+                        <div class="summary-content">
+                            <div class="summary-section">
+                                <h3>Selected Colors:</h3>
+                                <ul>
+                                    <li>Body: <span class="color-swatch" id="body-color-swatch"></span></li>
+                                    <li>Sleeves: <span class="color-swatch" id="sleeve-color-swatch"></span></li>
+                                    <li>Collar: <span class="color-swatch" id="collar-color-swatch"></span></li>
+                                    <li>Sleeve Band: <span class="color-swatch" id="sleeve-band-color-swatch"></span></li>
+                                    <li>Button: <span class="color-swatch" id="button-color-swatch"></span></li>
+                                    <li>Button Line: <span class="color-swatch" id="button-line-color-swatch"></span></li>
+                                </ul>
                             </div>
-                            <div class="design-elements-container" id="design-elements-container">
-                                <!-- Elements will be added here dynamically -->
+                            <div class="summary-section">
+                                <h3>Current View:</h3>
+                                <p id="current-view-display">Front</p>
                             </div>
-                        </div>
-
-                        <!-- Color Selection -->
-                        <div class="color-controls">
-                            <div class="color-section">
-                                <label>Body Color</label>
-                                <div class="color-options" id="body-colors">
-                                    <button class="color-btn" data-color="#ffffff" title="White" style="background-color: #ffffff;"></button>
-                                    <button class="color-btn" data-color="#000080" title="Navy" style="background-color: #000080;"></button>
-                                    <button class="color-btn" data-color="#000000" title="Black" style="background-color: #000000;"></button>
-                                    <button class="color-btn" data-color="#808080" title="Gray" style="background-color: #808080;"></button>
-                                    <button class="color-btn" data-color="#ff0000" title="Red" style="background-color: #ff0000;"></button>
-                                    <button class="color-btn" data-color="#008000" title="Green" style="background-color: #008000;"></button>
-                                    <button class="color-btn" data-color="#0000ff" title="Blue" style="background-color: #0000ff;"></button>
-                                </div>
+                            <div class="summary-section">
+                                <h3>Pockets:</h3>
+                                <p id="pockets-summary">None selected</p>
                             </div>
-                            
-                            <div class="color-section">
-                                <label>Sleeve Color</label>
-                                <div class="color-options" id="sleeve-colors">
-                                    <button class="color-btn" data-color="#ffffff" title="White" style="background-color: #ffffff;"></button>
-                                    <button class="color-btn" data-color="#000080" title="Navy" style="background-color: #000080;"></button>
-                                    <button class="color-btn" data-color="#000000" title="Black" style="background-color: #000000;"></button>
-                                    <button class="color-btn" data-color="#808080" title="Gray" style="background-color: #808080;"></button>
-                                    <button class="color-btn" data-color="#ff0000" title="Red" style="background-color: #ff0000;"></button>
-                                    <button class="color-btn" data-color="#008000" title="Green" style="background-color: #008000;"></button>
-                                    <button class="color-btn" data-color="#0000ff" title="Blue" style="background-color: #0000ff;"></button>
-                                </div>
+                            <div class="summary-section">
+                                <h3>Design Elements:</h3>
+                                <div id="design-elements-list"></div>
                             </div>
-
-                            <div class="color-section">
-                                <label>Sleeve Band</label>
-                                <div class="color-options" id="sleeve-band-colors">
-                                    <button class="color-btn" data-color="#ffffff" title="White" style="background-color: #ffffff;"></button>
-                                    <button class="color-btn" data-color="#000080" title="Navy" style="background-color: #000080;"></button>
-                                    <button class="color-btn" data-color="#000000" title="Black" style="background-color: #000000;"></button>
-                                    <button class="color-btn" data-color="#808080" title="Gray" style="background-color: #808080;"></button>
-                                    <button class="color-btn" data-color="#ff0000" title="Red" style="background-color: #ff0000;"></button>
-                                    <button class="color-btn" data-color="#008000" title="Green" style="background-color: #008000;"></button>
-                                    <button class="color-btn" data-color="#0000ff" title="Blue" style="background-color: #0000ff;"></button>
-                                </div>
-                            </div>
-
-                            <div class="color-section">
-                                <label>Button</label>
-                                <div class="color-options" id="button-colors">
-                                    <button class="color-btn" data-color="#ffffff" title="White" style="background-color: #ffffff;"></button>
-                                    <button class="color-btn" data-color="#000080" title="Navy" style="background-color: #000080;"></button>
-                                    <button class="color-btn" data-color="#000000" title="Black" style="background-color: #000000;"></button>
-                                    <button class="color-btn" data-color="#808080" title="Gray" style="background-color: #808080;"></button>
-                                    <button class="color-btn" data-color="#ff0000" title="Red" style="background-color: #ff0000;"></button>
-                                    <button class="color-btn" data-color="#008000" title="Green" style="background-color: #008000;"></button>
-                                    <button class="color-btn" data-color="#0000ff" title="Blue" style="background-color: #0000ff;"></button>
-                                </div>
-                            </div>
-
-                            <div class="color-section">
-                                <label>Button Line</label>
-                                <div class="color-options" id="button-line-colors">
-                                    <button class="color-btn" data-color="#ffffff" title="White" style="background-color: #ffffff;"></button>
-                                    <button class="color-btn" data-color="#000080" title="Navy" style="background-color: #000080;"></button>
-                                    <button class="color-btn" data-color="#000000" title="Black" style="background-color: #000000;"></button>
-                                    <button class="color-btn" data-color="#808080" title="Gray" style="background-color: #808080;"></button>
-                                    <button class="color-btn" data-color="#ff0000" title="Red" style="background-color: #ff0000;"></button>
-                                    <button class="color-btn" data-color="#008000" title="Green" style="background-color: #008000;"></button>
-                                    <button class="color-btn" data-color="#0000ff" title="Blue" style="background-color: #0000ff;"></button>
-                                </div>
-                            </div>
-
-                            <div class="color-section">
-                                <label>Collar Color</label>
-                                <div class="color-options" id="collar-colors">
-                                    <button class="color-btn" data-color="#ffffff" title="White" style="background-color: #ffffff;"></button>
-                                    <button class="color-btn" data-color="#000080" title="Navy" style="background-color: #000080;"></button>
-                                    <button class="color-btn" data-color="#000000" title="Black" style="background-color: #000000;"></button>
-                                    <button class="color-btn" data-color="#808080" title="Gray" style="background-color: #808080;"></button>
-                                    <button class="color-btn" data-color="#ff0000" title="Red" style="background-color: #ff0000;"></button>
-                                    <button class="color-btn" data-color="#008000" title="Green" style="background-color: #008000;"></button>
-                                    <button class="color-btn" data-color="#0000ff" title="Blue" style="background-color: #0000ff;"></button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pocket Selection -->
-                        <div class="pocket-controls">
-                            <h3>Pocket Selection</h3>
-                            <div class="pocket-options">
-                                <label>
-                                    <input type="checkbox" name="pocket" value="left" id="leftPocket"> Left Pocket
-                                </label>
-                                <label>
-                                    <input type="checkbox" name="pocket" value="right" id="rightPocket"> Right Pocket
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Download Button -->
-                        <div class="download-section">
-                            <button id="downloadBtn" class="download-btn">Download Design</button>
                         </div>
                     </div>
                 </section>
 
-                <!-- Design Summary Column -->
+                <!-- Right Column: Controls -->
                 <div class="right-column">
-                    <section class="card summary-section">
+                    <section class="card controls-section">
                         <div class="card-header">
-                            <h2>Design Summary</h2>
+                            <h2>Design Controls</h2>
                         </div>
                         <div class="card-content">
-                            <div class="summary-content">
-                                <div class="summary-section">
-                                    <h3>Selected Colors:</h3>
-                                    <ul>
-                                        <li>Body: <span class="color-swatch" id="body-color-swatch"></span></li>
-                                        <li>Sleeves: <span class="color-swatch" id="sleeve-color-swatch"></span></li>
-                                    </ul>
+                            <!-- Design Elements Section -->
+                            <div class="design-element-section">
+                                <button id="add-text-btn" class="add-text-btn">Add Text</button>
+                                <div class="form-group">
+                                    <label for="design-image-upload">Add Logo/Image</label>
+                                    <div class="upload-area" id="design-image-upload-area">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                        <span>Click to upload image</span>
+                                        <input type="file" id="design-image-upload" class="hidden-input" accept="image/*">
+                                    </div>
                                 </div>
-                                <div class="summary-section">
-                                    <h3>Current View:</h3>
-                                    <p id="current-view-display">Front</p>
+                                <div class="design-elements-container" id="design-elements-container">
+                                    <!-- Elements will be added here dynamically -->
                                 </div>
-                                <div class="summary-section">
-                                    <h3>Pockets:</h3>
-                                    <p id="pockets-summary">None selected</p>
+                            </div>
+
+                            <!-- Color Selection -->
+                            <div class="color-controls">
+                                <div class="color-section">
+                                    <label>Body Color</label>
+                                    <div class="color-options" id="body-colors">
+                                        <button class="color-btn" data-color="#ffffff" title="White" style="background-color: #ffffff;"></button>
+                                        <button class="color-btn" data-color="#000080" title="Navy" style="background-color: #000080;"></button>
+                                        <button class="color-btn" data-color="#000000" title="Black" style="background-color: #000000;"></button>
+                                        <button class="color-btn" data-color="#808080" title="Gray" style="background-color: #808080;"></button>
+                                        <button class="color-btn" data-color="#ff0000" title="Red" style="background-color: #ff0000;"></button>
+                                        <button class="color-btn" data-color="#008000" title="Green" style="background-color: #008000;"></button>
+                                        <button class="color-btn" data-color="#0000ff" title="Blue" style="background-color: #0000ff;"></button>
+                                    </div>
                                 </div>
-                                <div class="summary-section">
-                                    <h3>Design Elements:</h3>
-                                    <div id="design-elements-list"></div>
+                                
+                                <div class="color-section">
+                                    <label>Sleeve Color</label>
+                                    <div class="color-options" id="sleeve-colors">
+                                        <button class="color-btn" data-color="#ffffff" title="White" style="background-color: #ffffff;"></button>
+                                        <button class="color-btn" data-color="#000080" title="Navy" style="background-color: #000080;"></button>
+                                        <button class="color-btn" data-color="#000000" title="Black" style="background-color: #000000;"></button>
+                                        <button class="color-btn" data-color="#808080" title="Gray" style="background-color: #808080;"></button>
+                                        <button class="color-btn" data-color="#ff0000" title="Red" style="background-color: #ff0000;"></button>
+                                        <button class="color-btn" data-color="#008000" title="Green" style="background-color: #008000;"></button>
+                                        <button class="color-btn" data-color="#0000ff" title="Blue" style="background-color: #0000ff;"></button>
+                                    </div>
                                 </div>
+
+                                <div class="color-section">
+                                    <label>Sleeve Band</label>
+                                    <div class="color-options" id="sleeve-band-colors">
+                                        <button class="color-btn" data-color="#ffffff" title="White" style="background-color: #ffffff;"></button>
+                                        <button class="color-btn" data-color="#000080" title="Navy" style="background-color: #000080;"></button>
+                                        <button class="color-btn" data-color="#000000" title="Black" style="background-color: #000000;"></button>
+                                        <button class="color-btn" data-color="#808080" title="Gray" style="background-color: #808080;"></button>
+                                        <button class="color-btn" data-color="#ff0000" title="Red" style="background-color: #ff0000;"></button>
+                                        <button class="color-btn" data-color="#008000" title="Green" style="background-color: #008000;"></button>
+                                        <button class="color-btn" data-color="#0000ff" title="Blue" style="background-color: #0000ff;"></button>
+                                    </div>
+                                </div>
+
+                                <div class="color-section">
+                                    <label>Button</label>
+                                    <div class="color-options" id="button-colors">
+                                        <button class="color-btn" data-color="#ffffff" title="White" style="background-color: #ffffff;"></button>
+                                        <button class="color-btn" data-color="#000080" title="Navy" style="background-color: #000080;"></button>
+                                        <button class="color-btn" data-color="#000000" title="Black" style="background-color: #000000;"></button>
+                                        <button class="color-btn" data-color="#808080" title="Gray" style="background-color: #808080;"></button>
+                                        <button class="color-btn" data-color="#ff0000" title="Red" style="background-color: #ff0000;"></button>
+                                        <button class="color-btn" data-color="#008000" title="Green" style="background-color: #008000;"></button>
+                                        <button class="color-btn" data-color="#0000ff" title="Blue" style="background-color: #0000ff;"></button>
+                                    </div>
+                                </div>
+
+                                <div class="color-section">
+                                    <label>Button Line</label>
+                                    <div class="color-options" id="button-line-colors">
+                                        <button class="color-btn" data-color="#ffffff" title="White" style="background-color: #ffffff;"></button>
+                                        <button class="color-btn" data-color="#000080" title="Navy" style="background-color: #000080;"></button>
+                                        <button class="color-btn" data-color="#000000" title="Black" style="background-color: #000000;"></button>
+                                        <button class="color-btn" data-color="#808080" title="Gray" style="background-color: #808080;"></button>
+                                        <button class="color-btn" data-color="#ff0000" title="Red" style="background-color: #ff0000;"></button>
+                                        <button class="color-btn" data-color="#008000" title="Green" style="background-color: #008000;"></button>
+                                        <button class="color-btn" data-color="#0000ff" title="Blue" style="background-color: #0000ff;"></button>
+                                    </div>
+                                </div>
+
+                                <div class="color-section">
+                                    <label>Collar Color</label>
+                                    <div class="color-options" id="collar-colors">
+                                        <button class="color-btn" data-color="#ffffff" title="White" style="background-color: #ffffff;"></button>
+                                        <button class="color-btn" data-color="#000080" title="Navy" style="background-color: #000080;"></button>
+                                        <button class="color-btn" data-color="#000000" title="Black" style="background-color: #000000;"></button>
+                                        <button class="color-btn" data-color="#808080" title="Gray" style="background-color: #808080;"></button>
+                                        <button class="color-btn" data-color="#ff0000" title="Red" style="background-color: #ff0000;"></button>
+                                        <button class="color-btn" data-color="#008000" title="Green" style="background-color: #008000;"></button>
+                                        <button class="color-btn" data-color="#0000ff" title="Blue" style="background-color: #0000ff;"></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pocket Selection -->
+                            <div class="pocket-controls">
+                                <h3>Pocket Selection</h3>
+                                <div class="pocket-options">
+                                    <label>
+                                        <input type="checkbox" name="pocket" value="left" id="leftPocket"> Left Pocket
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" name="pocket" value="right" id="rightPocket"> Right Pocket
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                <button id="previewBtn" class="preview-btn" type="button">Preview Design</button>
+                                <form method="post" enctype="multipart/form-data" style="display:inline;">
+                                    {% csrf_token %}
+                                    <!-- Hidden fields for design data (to be filled by JS before submit) -->
+                                    <input type="hidden" name="name" id="design-name-input" value="Untitled Design">
+                                    <input type="hidden" name="design_data" id="design-data-input">
+                                    <input type="hidden" name="svg_data" id="svg-data-input">
+                                    <input type="file" name="image" id="design-image-input" style="display:none;">
+                                    <button type="submit" class="order-btn preview-btn">Order Submission</button>
+                                </form>
                             </div>
                         </div>
                     </section>
@@ -204,6 +265,40 @@
         </main>
     </div>
 
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Design Preview</h2>
+            <div id="previewContainer"></div>
+        </div>
+    </div>
+
     <script src="{% static 'js/customize_clothes.js' %}"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Find the order submission form
+    const orderForm = document.querySelector('.action-buttons form');
+    if (orderForm) {
+        orderForm.addEventListener('submit', function(e) {
+            // Use the global state object from your JS
+            if (typeof state !== 'undefined') {
+                document.getElementById('design-data-input').value = JSON.stringify(state);
+            } else {
+                alert('Design data is missing!');
+                e.preventDefault();
+                return;
+            }
+            // Save all four SVGs (the entire preview area) as markup for inline rendering
+            var previewDiv = document.querySelector('.shirt-preview');
+            if (previewDiv) {
+                document.getElementById('svg-data-input').value = previewDiv.innerHTML;
+            } else {
+                document.getElementById('svg-data-input').value = '';
+            }
+        });
+    }
+});
+</script>
 </body>
 </html>

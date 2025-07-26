@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quotation Created Successfully</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 2em; }
+        h1 { color: #2563eb; text-align: center; }
+        .info { margin: 2em 0; padding: 1.5em; background: #f1f5f9; border-radius: 8px; }
+        .info p { margin: 0.5em 0; font-size: 1.1em; }
+        .success { color: #16a34a; font-weight: bold; text-align: center; margin-bottom: 1.5em; }
+        .actions { text-align: center; margin-top: 2em; }
+        .actions a { background: #2563eb; color: #fff; padding: 0.7em 1.5em; border-radius: 6px; text-decoration: none; font-weight: 500; transition: background 0.2s; }
+        .actions a:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quotation Created Successfully!</h1>
+        <div class="success">
+            Quotation {{ quotation.quotation_id }} created successfully!
+        </div>
+        <div class="info">
+            <p><strong>Customer:</strong> {{ customer_name }}</p>
+            <p><strong>Email:</strong> {{ customer_email }}</p>
+            <p><strong>Phone:</strong> {{ customer_phone }}</p>
+        </div>
+        <div class="actions">
+            <a href="/admin_dashboard">Go to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html> 

@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,9 +30,13 @@ urlpatterns = [
     path('',include("receive_quotation.urls")),
     path('',include("status.urls")),
     path('',include("admin_dashboard.urls")),
-    path('',include("review_order.urls")),
+    path('review_order/',include("review_order.urls")),
     path('',include("update_status.urls")),
     path('',include("confirm_payment.urls")),
-    path('',include("customize_clothes.urls")),
+    path('customize_clothes/', include("customize_clothes.urls")),
     path('',include("customer_dashboard.urls")),
+    path('',include("landing_page.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

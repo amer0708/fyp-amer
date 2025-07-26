@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <link rel="stylesheet" href="{% static 'css/submitorder.css' %}">
+    <style>
+        body {
+            background: #f4f7fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .confirmation-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 6px rgba(0,0,0,0.04);
+            padding: 2.5em 2.5em 2em 2.5em;
+            max-width: 480px;
+            margin: 2em auto;
+            text-align: center;
+        }
+        .confirmation-card h1 {
+            color: #2e7d32;
+            font-size: 2.2em;
+            margin-bottom: 0.5em;
+        }
+        .confirmation-card p {
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 1.5em;
+        }
+        .confirmation-card h2 {
+            font-size: 1.3em;
+            margin-bottom: 0.7em;
+            color: #222;
+        }
+        .confirmation-card ul {
+            text-align: left;
+            margin: 0 auto 1.5em auto;
+            padding: 0 0 0 1.2em;
+            max-width: 350px;
+        }
+        .confirmation-card li {
+            margin-bottom: 0.5em;
+            font-size: 1.05em;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #43a047 0%, #388e3c 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.9em 2.2em;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 2em;
+            box-shadow: 0 2px 8px rgba(67,160,71,0.08);
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #388e3c 0%, #43a047 100%);
+            box-shadow: 0 4px 16px rgba(67,160,71,0.13);
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-card">
+        <h1>Thank You for Your Order!</h1>
+        <p>Your order has been submitted successfully.</p>
+        <h2>Order Details</h2>
+        <ul>
+            <li><strong>Order ID:</strong> {{ order.id }}</li>
+            <li><strong>Name:</strong> {{ order.full_name }}</li>
+            <li><strong>Company:</strong> {{ order.company_name }}</li>
+            <li><strong>Email:</strong> {{ order.email }}</li>
+            <li><strong>Phone:</strong> {{ order.phone }}</li>
+            <li><strong>Estimated Completion:</strong> {{ order.delivery_date }}</li>
+        </ul>
+        <a href="/customer_dashboard" class="btn-primary">Back to Dashboard</a>
+    </div>
+</body>
+</html> 

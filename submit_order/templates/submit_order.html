@@ -6,17 +6,127 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corporate Clothes Order System</title>
     <link rel="stylesheet" href="{% static 'css/submitorder.css'%}">
+    <style>
+        body {
+            background: #f4f7fa;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 2em auto;
+            padding: 2.5em 2em 2em 2em;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 6px rgba(0,0,0,0.04);
+        }
+        h1 {
+            color: #2e7d32;
+            font-size: 2em;
+            margin-bottom: 0.7em;
+            text-align: center;
+        }
+        .btn-primary, .btn-secondary {
+            background: linear-gradient(90deg, #43a047 0%, #388e3c 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.7em 2em;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 1em;
+            box-shadow: 0 2px 8px rgba(67,160,71,0.08);
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover, .btn-secondary:hover {
+            background: linear-gradient(90deg, #388e3c 0%, #43a047 100%);
+            box-shadow: 0 4px 16px rgba(67,160,71,0.13);
+        }
+        .form-section {
+            background: #dddddd;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(67,160,71,0.07);
+            padding: 1.5em 1.2em;
+            margin-bottom: 1.5em;
+        }
+        .button-group {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Corporate Clothes Order</h1>
+        <!-- Design Preview Section -->
+        {% if design %}
+        <style>
+        .svg-preview-container {
+            display: flex;
+            gap: 2em;
+            background: #d3d7db;
+            padding: 1.5em 1em;
+            border-radius: 12px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2em;
+        }
+        .svg-preview-container svg {
+            width: 150px;
+            height: 220px;
+            background: none;
+            display: block;
+        }
+        </style>
+        <div class="design-preview-section">
+            <h2>Your Design</h2>
+            {% if svg_content %}
+                <div class="svg-preview-container">{{ svg_content|safe }}</div>
+            {% elif design.image %}
+                <img src="{{ design.image.url }}" alt="Design Image" style="max-width:100%; max-height:300px;">
+            {% else %}
+                {% with design_data=design.design_data|default_if_none:'{}' %}
+                    <script id="design-data-json" type="application/json">{{ design_data|safe }}</script>
+                    <div id="design-summary"></div>
+                    <pre id="pretty-json"></pre>
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        try {
+                            const data = JSON.parse(document.getElementById('design-data-json').textContent);
+                            // Show summary
+                            let summary = '<ul>';
+                            if (data.colors) {
+                                summary += `<li>Body color: <span style='background:${data.colors.body};padding:0 10px;'>${data.colors.body}</span></li>`;
+                                summary += `<li>Sleeve color: <span style='background:${data.colors.sleeves};padding:0 10px;'>${data.colors.sleeves}</span></li>`;
+                                summary += `<li>Collar color: <span style='background:${data.colors.collar};padding:0 10px;'>${data.colors.collar}</span></li>`;
+                                summary += `<li>Sleeve Band: <span style='background:${data.colors.sleeveBand};padding:0 10px;'>${data.colors.sleeveBand}</span></li>`;
+                                summary += `<li>Button: <span style='background:${data.colors.button};padding:0 10px;'>${data.colors.button}</span></li>`;
+                                summary += `<li>Button Line: <span style='background:${data.colors.buttonLine};padding:0 10px;'>${data.colors.buttonLine}</span></li>`;
+                            }
+                            if (data.pockets) {
+                                summary += `<li>Pockets: Left - ${data.pockets.left ? 'Yes' : 'No'}, Right - ${data.pockets.right ? 'Yes' : 'No'}</li>`;
+                            }
+                            summary += '</ul>';
+                            document.getElementById('design-summary').innerHTML = summary;
+                            // Pretty print JSON
+                            document.getElementById('pretty-json').textContent = JSON.stringify(data, null, 2);
+                        } catch (e) {
+                            document.getElementById('design-summary').textContent = 'Could not parse design data.';
+                        }
+                    });
+                    </script>
+                {% endwith %}
+            {% endif %}
+        </div>
+        {% endif %}
         <form id="orderForm">
             <!-- Section 1: Customer Details -->
             <section class="form-section">
                 <h2>Customer Details</h2>
                 <div class="form-group">
                     <label for="fullName">Full Name*</label>
-                    <input type="text" id="fullName" name="fullName" required>
+                    <input type="text" id="fullName" name="fullName" required value="{{ user_info.full_name|default:'' }}">
                 </div>
                 <div class="form-group">
                     <label for="companyName">Company Name*</label>
@@ -24,11 +134,11 @@
                 </div>
                 <div class="form-group">
                     <label for="email">Email*</label>
-                    <input type="email" id="email" name="email" required>
+                    <input type="email" id="email" name="email" required value="{{ user_info.email|default:'' }}">
                 </div>
                 <div class="form-group">
                     <label for="phone">Phone Number*</label>
-                    <input type="tel" id="phone" name="phone" required>
+                    <input type="tel" id="phone" name="phone" required value="{{ user_info.phone|default:'' }}">
                 </div>
                 <div class="form-group">
                     <label for="role">Your Role in Company*</label>
@@ -56,11 +166,6 @@
                     </label>
                 </div>
                 <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="hasNametags" name="hasNametags"> Include Nametags
-                    </label>
-                </div>
-                <div class="form-group">
                     <label for="deliveryDate">Estimated Completion Date*</label>
                     <input type="date" id="deliveryDate" name="deliveryDate" required>
                 </div>
@@ -71,6 +176,7 @@
                 <h2>Standard Sizes</h2>
                 <div class="form-group">
                     <label>Standard Size Quantities</label>
+                    <br>
                     <a class="view-size-chart">View Size Chart</a>
                 </div>
                 
@@ -138,12 +244,6 @@
                 <div id="customSizeEntries"></div>
             </section>
 
-            <!-- Section 5: Nametags (conditionally shown) -->
-            <section id="nametagsSection" class="form-section" style="display: none;">
-                <h2>Nametags</h2>
-                <div id="nametagEntries"></div>
-            </section>
-
             <!-- Buttons -->
             <section class="form-section button-group">
                 <button type="button" id="previewBtn" class="btn-secondary">Preview Order</button>
@@ -171,7 +271,9 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3>Standard Size Chart (in inches)</h3>
-            <table>
+            <table id="dynamicSizeChartTable">
+                <!-- This will be filled dynamically by JavaScript -->
+                <!-- Default content shown when JS hasn't loaded yet -->
                 <thead>
                     <tr>
                         <th>Size</th>
@@ -179,49 +281,11 @@
                         <th>Waist</th>
                         <th>Hip</th>
                         <th>Sleeve</th>
-                        <th>Neck</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>S</td>
-                        <td>34-36</td>
-                        <td>28-30</td>
-                        <td>34-36</td>
-                        <td>32</td>
-                        <td>14-14.5</td>
-                    </tr>
-                    <tr>
-                        <td>M</td>
-                        <td>38-40</td>
-                        <td>32-34</td>
-                        <td>38-40</td>
-                        <td>33</td>
-                        <td>15-15.5</td>
-                    </tr>
-                    <tr>
-                        <td>L</td>
-                        <td>42-44</td>
-                        <td>36-38</td>
-                        <td>42-44</td>
-                        <td>34</td>
-                        <td>16-16.5</td>
-                    </tr>
-                    <tr>
-                        <td>XL</td>
-                        <td>46-48</td>
-                        <td>40-42</td>
-                        <td>46-48</td>
-                        <td>35</td>
-                        <td>17-17.5</td>
-                    </tr>
-                    <tr>
-                        <td>XXL</td>
-                        <td>50-52</td>
-                        <td>44-46</td>
-                        <td>50-52</td>
-                        <td>36</td>
-                        <td>18-18.5</td>
+                        <td colspan="6">Loading size chart...</td>
                     </tr>
                 </tbody>
             </table>

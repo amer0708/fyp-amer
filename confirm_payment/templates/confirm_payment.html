@@ -1,32 +1,120 @@
-{%load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Payments</title>
+    <title>Confirm Payment</title>
     <link rel="stylesheet" href="{% static 'css/confirm_payment.css' %}">
+    <style>
+        .payment-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #0001; padding: 1.5rem; margin-top: 1.5rem; }
+        .payment-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.1rem; margin-bottom: 0.7rem; }
+        .payment-amount { color: #2e7d32; font-weight: bold; font-size: 1.1rem; }
+        .payment-date { color: #444; font-size: 1rem; }
+        .payment-proof img { max-width: 180px; max-height: 120px; border: 1px solid #eee; border-radius: 6px; margin-top: 0.5rem; }
+        .payment-actions { margin-top: 1.2rem; }
+        .accept-btn { background: #4CAF50; color: #fff; border: none; padding: 0.6em 1.2em; border-radius: 5px; font-size: 1rem; margin-right: 0.7em; cursor: pointer; }
+        .reject-btn { background: #f44336; color: #fff; border: none; padding: 0.6em 1.2em; border-radius: 5px; font-size: 1rem; cursor: pointer; }
+        .customer-header-info { margin-bottom: 0.5rem; }
+        .customer-header-info h1 { margin: 0; font-size: 2rem; }
+        .customer-header-info p { margin: 0.2rem 0 0 0; color: #444; font-size: 1.1rem; }
+        .order-id { font-weight: bold; }
+        .view-pdf-link { display: inline-block; margin-top: 0.5rem; padding: 0.6rem 1.2rem; background: #fff; color: #1565c0; border: 1.5px solid #000000; border-radius: 8px; font-size: 1rem; font-weight: 700; text-decoration: none; transition: background 0.2s, color 0.2s, border 0.2s; box-shadow: 0 2px 8px rgba(11,61,24,0.07); cursor: pointer; }
+        .view-pdf-link:hover { background: #B3AF87; color: #0B3D18; border-color: #0B3D18; text-decoration: underline; }
+    </style>
 </head>
 <body>
     <div class="admin-container">
-        <header class="admin-header">
-            <div class="customer-header-info">
-                <h1 id="customer-name">Customer Name</h1>
-                <p id="customer-contact">email@example.com | +1 (555) 123-4567</p>
-            </div>
-            <nav class="admin-nav">
-                <a href="admin_dashboard">Back to Dashboard</a>
-                <a href="review_order">Orders</a>
-                <a href="update_status">Status</a>
-                <a href="submitquotation">Quotation</a>
-            </nav>
-        </header>
-
-        <div class="payment-list">
-            <!-- Payments will be loaded here -->
-        </div>
+        {% if payments and payments|length > 0 %}
+            {% with payment=payments.0 %}
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.2rem;">
+                    <div class="customer-header-info">
+                        <h1>{{ payment.quotation.customer.name }}</h1>
+                        <p>{{ payment.quotation.customer.email }} | {{ payment.quotation.customer.phone }}</p>
+                    </div>
+                    <nav class="admin-nav">
+                        <a href="admin_dashboard">Back to Dashboard</a>
+                        <a href="review_order">Orders</a>
+                        <a href="update_status">Status</a>
+                        <a href="submitquotation">Quotation</a>
+                    </nav>
+                </div>
+                <div class="payment-card">
+                    <div class="payment-header">
+                        <span class="order-id">Order #{{ payment.quotation.quotation_id }}</span>
+                        <span class="payment-date">{{ payment.payment_date }}</span>
+                        <span class="payment-amount">RM{{ payment.quotation.deposit_amount }}</span>
+                    </div>
+                    <div class="payment-method" style="font-style: italic; color: #444; margin-bottom: 0.7rem;">
+                        Bank Transfer
+                    </div>
+                    <div class="payment-proof">
+                        {% if payment.payment_proof %}
+                            {% with ext=payment.payment_proof.url|lower|slice:"-4:" %}
+                                {% if ext == ".pdf" %}
+                                    <a href="{{ payment.payment_proof.url }}" target="_blank" class="view-pdf-link">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;"><rect x="4" y="2" width="16" height="20" rx="2" fill="#fff" stroke="#000" stroke-width="1.5"/><path d="M6 2C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8.82843C20 8.29799 19.7893 7.78929 19.4142 7.41421L15.5858 3.58579C15.2107 3.21071 14.702 3 14.1716 3H6ZM6 4H13V8C13 9.10457 13.8954 10 15 10H19V20C19 20.5523 18.5523 21 18 21H6C5.44772 21 5 20.5523 5 20V4C5 3.44772 5.44772 3 6 3V4ZM14 4.41421L17.5858 8H15C14.4477 8 14 7.55228 14 7V4.41421Z" fill="#000"/></svg>
+                                        View PDF
+                                    </a>
+                                {% else %}
+                                    <a href="{{ payment.payment_proof.url }}" target="_blank">
+                                        <img src="{{ payment.payment_proof.url }}" alt="Payment Receipt" style="cursor: pointer;">
+                                    </a>
+                                {% endif %}
+                            {% endwith %}
+                        {% else %}
+                            <span>No payment proof uploaded.</span>
+                        {% endif %}
+                    </div>
+                    {% if payment.notes %}
+                    <div class="payment-notes" style="margin-top:1em; color:#333;">
+                        <strong>Notes:</strong> {{ payment.notes }}
+                    </div>
+                    {% endif %}
+                    <div class="payment-actions" style="display: block; text-align: center;">
+                        {% if messages %}
+                            <div style="margin-bottom: 1em;">
+                                {% for message in messages %}
+                                    <div style="background:#e8f5e9;color:#256029;padding:0.7em 1.2em;border-radius:8px;font-weight:500;margin-bottom:0.5em;">{{ message }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div style="margin-bottom:1.2em;">
+                            {% if payment.status == 'approved' %}
+                                <span style="display:inline-flex;align-items:center;background:#4CAF50;color:#fff;padding:0.3em 0.9em;border-radius:16px;font-weight:600;font-size:1em;gap:0.4em;">
+                                    <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="8" fill="#4CAF50"/><path d="M5 8.5l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    Approved
+                                </span>
+                            {% elif payment.status == 'rejected' %}
+                                <span style="display:inline-flex;align-items:center;background:#f44336;color:#fff;padding:0.3em 0.9em;border-radius:16px;font-weight:600;font-size:1em;gap:0.4em;">
+                                    <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="8" fill="#f44336"/><path d="M5.5 5.5l5 5m0-5l-5 5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                    Rejected
+                                </span>
+                            {% else %}
+                                <span style="display:inline-flex;align-items:center;background:#bbb;color:#fff;padding:0.3em 0.9em;border-radius:16px;font-weight:600;font-size:1em;gap:0.4em;">
+                                    <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="8" fill="#bbb"/></svg>
+                                    Pending
+                                </span>
+                            {% endif %}
+                        </div>
+                        <form method="post" action="" style="display: inline-block;">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_id" value="{{ payment.payment_id }}">
+                            <button class="accept-btn" name="action" value="accept" type="submit"
+                                {% if payment.status != 'pending' %}disabled style="background:#bbb;color:#fff;cursor:not-allowed;"{% endif %}>
+                                Accept Payment
+                            </button>
+                            <button class="reject-btn" name="action" value="reject" type="submit"
+                                {% if payment.status != 'pending' %}disabled style="background:#bbb;color:#fff;cursor:not-allowed;"{% endif %}>
+                                Reject Payment
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endwith %}
+        {% else %}
+            <div class="alert alert-info">No payment found for this ID.</div>
+        {% endif %}
     </div>
-
-    <script src="{% static 'js/confirm_payment.js' %}"></script>
 </body>
 </html>

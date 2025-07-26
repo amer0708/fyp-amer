@@ -1,32 +1,304 @@
-{% load static  %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Orders</title>
+    <title>Review Order</title>
     <link rel="stylesheet" href="{% static 'css/review_order.css' %}">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .order-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 25px;
+        }
+        .order-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .order-section:last-child {
+            border-bottom: none;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .info-row label {
+            font-weight: 600;
+            min-width: 180px;
+            color: #555;
+        }
+        .design-info p {
+            margin: 5px 0;
+        }
+        .size-distribution {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+        .size-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 6px;
+            min-width: 40px;
+        }
+        .size-label {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+        .size-quantity {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .custom-sizes {
+            margin-top: 20px;
+        }
+        .size-group {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+        }
+        .size-group h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+        .measurements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .measurement {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .measurement label {
+            font-weight: 600;
+            color: #555;
+            display: block;
+            margin-bottom: 3px;
+        }
+        .measurement span {
+            color: #333;
+        }
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn.approve {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .btn.approve:hover {
+            background-color: #27ae60;
+        }
+        .btn.reject {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn.reject:hover {
+            background-color: #c0392b;
+        }
+        .design-preview-grid {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 32px;
+            margin-bottom: 1em;
+        }
+        .multi-view-svg svg {
+            width: 200px;
+            height: 300px;
+            margin: 0 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+    </style>
 </head>
 <body>
-    <div class="admin-container">
-        <header class="admin-header">
-            <div class="customer-header-info">
-                <h1 id="customer-name">Customer Name</h1>
-                <p id="customer-contact">email@example.com | +1 (555) 123-4567</p>
-            </div>
-            <nav class="admin-nav">
+    <div class="container">
+        <header>
+            <h1>Order Review</h1>
+            <nav>
                 <a href="/admin_dashboard">Back to Dashboard</a>
-                <a href="/confirm_payment">Payments</a>
-                <a href="/update_status">Status</a>
-                <a href="/submitquotation">Quotation</a>
             </nav>
         </header>
 
-        <div class="order-list">
-            <!-- Orders will be loaded here -->
+        <div class="order-container">
+            <!-- Order Details -->
+            <div class="order-section">
+                <h2>Order Details</h2>
+                <div class="order-info">
+                    <div class="info-row">
+                        <label>Order Date:</label>
+                        <span>{{ order.created_at|date:'F d, Y' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <label>Estimated Completion:</label>
+                        <span>{{ order.delivery_date|date:'F d, Y' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Information -->
+            <div class="order-section">
+                <h2>Customer Information</h2>
+                <div class="customer-info">
+                    <div class="info-row">
+                        <label>Name:</label>
+                        <span>{{ order.full_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <label>Company:</label>
+                        <span>{{ order.company_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <label>Contact:</label>
+                        <span>{{ order.email }} | {{ order.phone }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design Preview -->
+            <div class="order-section">
+                <h2>Design Preview</h2>
+                <div class="design-preview-grid">
+                    {% if order.design and order.design.svg_data %}
+                        <div class="multi-view-svg" style="display: flex; gap: 32px; justify-content: center;">
+                            {{ order.design.svg_data|safe }}
+                        </div>
+                    {% elif order.design and order.design.svg_file %}
+                        <object type="image/svg+xml" data="{{ order.design.svg_file.url }}" class="design-image"></object>
+                    {% elif order.design and order.design.image %}
+                        <img src="{{ order.design.image.url }}" alt="Design Image" class="design-image" style="max-width:200px;">
+                    {% else %}
+                        <span>No design uploaded.</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="order-section">
+                <h2>Product Details</h2>
+                <div class="product-info">
+                    <div class="info-row">
+                        <label>Size Distribution:</label>
+                        <div class="size-distribution">
+                            {% for sz in order.standard_sizes.all %}
+                                <div class="size-item">
+                                    <span class="size-label">{{ sz.gender|title }} {{ sz.size }}</span>
+                                    <span class="size-quantity">{{ sz.quantity }}</span>
+                                </div>
+                            {% empty %}
+                                <span>No standard sizes.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Size Measurements -->
+            <div class="order-section">
+                <h2>Custom Size Measurements</h2>
+                <div class="custom-sizes">
+                    {% for cs in order.custom_sizes.all %}
+                    <div class="size-group">
+                        <h3>Custom Size #{{ forloop.counter }} ({{ cs.gender|title }})</h3>
+                        <div class="measurements-grid">
+                            <div class="measurement">
+                                <label>Chest</label>
+                                <span>{{ cs.chest }} inches</span>
+                            </div>
+                            <div class="measurement">
+                                <label>Waist</label>
+                                <span>{{ cs.waist }} inches</span>
+                            </div>
+                            <div class="measurement">
+                                <label>Hip</label>
+                                <span>{{ cs.hip }} inches</span>
+                            </div>
+                            <div class="measurement">
+                                <label>Shoulder</label>
+                                <span>{{ cs.shoulder }} inches</span>
+                            </div>
+                            <div class="measurement">
+                                <label>Sleeve Length</label>
+                                <span>{{ cs.sleeve }} inches</span>
+                            </div>
+                            <div class="measurement">
+                                <label>Shirt Length</label>
+                                <span>{{ cs.shirt_length }} inches</span>
+                            </div>
+                            <div class="measurement">
+                                <label>Neck</label>
+                                <span>{{ cs.neck }} inches</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <span>No custom sizes.</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            {% if review and review.status == 'pending' or review and not review.status %}
+            <form method="post" class="actions">
+                {% csrf_token %}
+                <button class="btn approve" name="action" value="approve" type="submit">Approve</button>
+                <button class="btn reject" name="action" value="reject" type="submit">Reject</button>
+            </form>
+            {% endif %}
         </div>
     </div>
-
-    <script src="{% static 'js/review_order.js' %}"></script>
 </body>
 </html>

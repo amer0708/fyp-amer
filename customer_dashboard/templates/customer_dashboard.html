@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
+    <div style="position: absolute; top: 20px; right: 30px; text-align: right; z-index: 1000;">
+        <div style="font-weight: bold;">{{ full_name }}</div>
+        <div style="font-size: 0.95em;">{{ email }} | {{ phone }}</div>
+    </div>
     <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar"><i class="fa fa-bars"></i></button>
     <div class="customer-sidebar" id="customerSidebar">
         <div class="sidebar-logo">
@@ -17,9 +21,10 @@
         </div>
         <nav class="sidebar-nav">
             <a href="/customer_dashboard" class="nav-btn"><i class="fa fa-home sidebar-icon"></i><span class="sidebar-link-text">Dashboard</span></a>
-            <a href="/status" class="nav-btn"><i class="fa fa-list sidebar-icon"></i><span class="sidebar-link-text">Order Status</span></a>
             <a href="/customize_clothes" class="nav-btn"><i class="fa fa-pen sidebar-icon"></i><span class="sidebar-link-text">Customize Clothes</span></a>
-            <a href="/logout" class="nav-btn"><i class="fa fa-sign-out-alt sidebar-icon"></i><span class="sidebar-link-text">Logout</span></a>
+            <a href="{% url 'about' %}" class="nav-btn"><i class="fa fa-info-circle sidebar-icon"></i><span class="sidebar-link-text">About</span></a>
+            <a href="{% url 'contact' %}" class="nav-btn"><i class="fa fa-envelope sidebar-icon"></i><span class="sidebar-link-text">Contact</span></a>
+            <a href="{% url 'logout_customer' %}" class="nav-btn"><i class="fa fa-sign-out-alt sidebar-icon"></i><span class="sidebar-link-text">Logout</span></a>
         </nav>
     </div>
     <div class="customer-main-content" id="customerMainContent">
@@ -34,8 +39,34 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="customer-orders-body">
-                    <!-- Orders will be loaded here by JS -->
+                <tbody>
+                    {% if orders and orders.count > 0 %}
+                        {% for order in orders %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.created_at|date:'Y-m-d' }}</td>
+                            <td>{{ order.display_status|default:'-' }}</td>
+                            <td>
+                                {% if order.quotations.all %}
+                                    {% with quotation=order.quotations.all.0 %}
+                                        <a href="/receivequotation/?quotation_id={{ quotation.quotation_id }}" class="action-btn quotation-btn">View Quotation</a>
+                                        {% if quotation.quotation_rejected or quotation.payments.all and quotation.payments.all.0.status == 'rejected' %}
+                                            <span class="action-btn payment-btn disabled-btn" style="background:#ccc;color:#888;cursor:not-allowed;pointer-events:none;">Submit Payment</span>
+                                        {% else %}
+                                            <a href="/payment?quotation_id={{ quotation.quotation_id }}" class="action-btn payment-btn">Submit Payment</a>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% else %}
+                                    <span style="color:gray;">No Quotation</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align:center;">No orders found.</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </main>

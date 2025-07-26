@@ -1,6 +1,8 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
 
-urlpatterns =[
-    path("customize_clothes/",views.customize_clothes,name="customize_clothes"),
+app_name = 'customize_clothes'
+
+urlpatterns = [
+    path('', views.customize, name='customize'),
 ]

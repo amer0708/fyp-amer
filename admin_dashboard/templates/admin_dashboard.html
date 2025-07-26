@@ -13,17 +13,84 @@
             <h1>Admin Dashboard</h1>
             <nav class="admin-nav">
                 <a href="managesizechart">Manage Size Cart</a>
+                <a href="{% url 'logout_admin' %}" class="logout-btn">Logout</a>
             </nav>
         </header>
         <main class="customer-selection">
             <div class="search-section">
-                <input type="text" id="customer-search" placeholder="Search customers...">
-                <button id="search-btn">Search</button>
+                <form method="get" action="">
+                    <input type="text" id="customer-search" name="search" placeholder="Search customers..." value="{{ search|default:'' }}">
+                    <button id="search-btn" type="submit">Search</button>
+                </form>
             </div>
             <div class="customer-list-container">
-                <div class="customer-list">
-                    <!-- Customer cards will be loaded here -->
-                </div>
+                <table class="order-table" style="width:100%;margin-top:2em;">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Company</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if orders and orders.count > 0 %}
+                            {% for order in orders %}
+                            <tr>
+                                <td>{{ order.order_number }}</td>
+                                <td>{{ order.full_name|default:'-' }}</td>
+                                <td>{{ order.email|default:'-' }}</td>
+                                <td>{{ order.phone|default:'-' }}</td>
+                                <td>{{ order.company_name|default:'-' }}</td>
+                                <td>{{ order.created_at|date:'Y-m-d' }}</td>
+                                <td>
+                                    {% if order.id %}
+                                        <a href="/review_order/orders/{{ order.id }}/review/" class="view-order-btn">View Order</a>
+                                    {% else %}
+                                        <span style="color:gray;" class="disabled-btn">View Order</span>
+                                    {% endif %}
+                                    {% if order.id %}
+                                        {% if order.review and order.review.status == 'rejected' %}
+                                            <span style="color:gray;" class="disabled-btn">Submit Price Quotation</span>
+                                        {% else %}
+                                            <a href="/submitquotation/order/{{ order.id }}/" class="submit-quotation-btn">Submit Price Quotation</a>
+                                        {% endif %}
+                                    {% else %}
+                                        <span style="color:gray;" class="disabled-btn">Submit Price Quotation</span>
+                                    {% endif %}
+                                    {% if order.quotations.all %}
+                                        {% with quotation=order.quotations.all.0 %}
+                                            {% if quotation.payments.all %}
+                                                {% with payment=quotation.payments.all.0 %}
+                                                    {% if payment.payment_id %}
+                                                        <a href="/confirm_payment?payment_id={{ payment.payment_id }}" class="confirm-payment-btn">Confirm Payment</a>
+                                                    {% else %}
+                                                        <span style="color:gray;" class="disabled-btn">Confirm Payment</span>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% else %}
+                                                <span style="color:gray;" class="disabled-btn">Confirm Payment</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% else %}
+                                        <span style="color:gray;" class="disabled-btn">Confirm Payment</span>
+                                    {% endif %}
+                                    {% if order.id %}
+                                        <a href="/update_status?order_id={{ order.id }}" class="update-status-btn">Update Status</a>
+                                    {% else %}
+                                        <span style="color:gray;" class="disabled-btn">Update Status</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="7" style="text-align:center;">No orders found.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
             </div>
         </main>
     </div>

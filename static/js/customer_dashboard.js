@@ -39,11 +39,17 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>${order.id}</td>
             <td>${order.date}</td>
             <td>${order.status}</td>
-            <td><button class="view-order-btn">View Order</button></td>
+            <td>
+                <button class="action-btn quotation-btn">Price Quotation</button>
+                <button class="action-btn payment-btn">Submit Payment</button>
+            </td>
         `;
         ordersBody.appendChild(row);
-        row.querySelector('.view-order-btn').addEventListener('click', function() {
+        row.querySelector('.quotation-btn').addEventListener('click', function() {
             window.location.href = '/receivequotation';
+        });
+        row.querySelector('.payment-btn').addEventListener('click', function() {
+            window.location.href = '/payment/' + order.id + '/';
         });
     });
 

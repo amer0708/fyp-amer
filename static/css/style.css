@@ -224,3 +224,15 @@ button:hover {
     border-radius: 6px;
     margin-top: 1em;
 }
+.alert {
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.alert-danger {
+  background-color: rgba(255, 0, 0, 0.2);
+  color: #ff3333;
+  border: 1px solid #ff3333;
+}

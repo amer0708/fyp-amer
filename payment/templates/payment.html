@@ -17,39 +17,54 @@
         <a href="status">Order Status</a>
         </nav>
         <div class="user-info">
-            <span id="customer-name">John Doe</span>
-            <span id="company-name">ABC Corporation</span>
+            <span id="customer-name">{{ customer_name|default:"Customer Name" }}</span>
+            <span id="company-name">{{ company_name|default:"Company Name" }}</span>
         </div>
     </header>
 
     <main>
         <div class="card">
             <h2>Submit Deposit Payment Proof</h2>
-            <form id="payment-form">
+            {% if messages %}
+              <div class="messages">
+                {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+            {% if not payment_exists %}
+            <form id="payment-form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="quotation_id" value="{{ quotation_id }}">
                 <div class="form-group">
                     <label>Amount to Pay (70% Deposit)</label>
-                    <div class="highlighted">RM1,750.00</div>
+                    <div class="highlighted">RM{{ deposit_amount|default:"-" }}</div>
                 </div>
                 <div class="form-group">
                     <label>Payment Date</label>
-                    <input type="text" id="payment-date" value="2023-11-15" readonly>
+                    <input type="date" id="payment-date" name="payment_date" max="{{ now|date:'Y-m-d' }}" required {% if payment_exists %}disabled{% endif %}>
                 </div>
                 <div class="form-group">
                     <label for="payment-proof">Upload Payment Proof (JPG, PNG, PDF - max 5MB)</label>
-                    <input type="file" id="payment-proof" accept=".jpg,.jpeg,.png,.pdf" required>
+                    <input type="file" id="payment-proof" name="payment_proof" accept=".jpg,.jpeg,.png,.pdf" required {% if payment_exists %}disabled{% endif %}>
                     <div class="file-requirements">Accepted formats: JPG, PNG, PDF. Max size: 5MB</div>
+                </div>
+                <div id="file-preview-container" class="hidden">
+                    <h3>File Preview</h3>
+                    <div id="file-preview"></div>
+                    <button id="remove-file" class="btn-secondary">Remove File</button>
                 </div>
                 <div class="form-group">
                     <label for="payment-notes">Notes (Optional)</label>
-                    <textarea id="payment-notes" rows="3"></textarea>
+                    <textarea id="payment-notes" name="notes" rows="3" style="resize: none;" {% if payment_exists %}disabled{% endif %}></textarea>
                 </div>
-                <button type="submit" class="btn-primary">Submit Payment Proof</button>
+                <button type="submit" class="btn-primary" {% if payment_exists %}disabled{% endif %}>Submit Payment Proof</button>
             </form>
-            <div id="file-preview-container" class="hidden">
-                <h3>File Preview</h3>
-                <div id="file-preview"></div>
-                <button id="remove-file" class="btn-secondary">Remove File</button>
+            {% else %}
+            <div class="form-group">
             </div>
+            {% endif %}
+            
             <div id="submission-message" class="hidden">
                 <div class="success-message">
                     <p>Your payment proof has been submitted successfully!</p>

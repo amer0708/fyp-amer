@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Glassmorphism Login Form</title>
+  <title>SignUp Form</title>
   <link rel="stylesheet" href="{% static 'css/style.css'%}">
   <script>
     function redirectToPage() {
@@ -17,23 +17,51 @@
 </head>
 <body>
   <div class="wrapper">
-    <form action="#">
+    <form method="post" action="{% url 'signup' %}">
+      {% csrf_token %}
       <h2>SignUp</h2>
+
+      <!-- Display general errors -->
+      {% if errors.general %}
+        <div class="alert alert-danger">
+          {{ errors.general }}
+        </div>
+      {% endif %}
+
       <div class="input-field">
-        <input type="text" required>
+        <input type="text" name="full_name" value="{{ full_name|default:'' }}" required>
         <label>Full Name</label>
+        {% if errors.full_name %}
+        <span style="color: #ff3333; font-size: 0.8rem;">{{ errors.full_name }}</span>
+        {% endif %}
       </div>
       <div class="input-field">
-        <input type="password" required>
+        <input type="email" name="email" value="{{ email|default:'' }}" required>
         <label>Email address</label>
+        {% if errors.email %}
+          <span style="color: #ff3333; font-size: 0.8rem;">{{ errors.email }}</span>
+        {% endif %}
       </div>
       <div class="input-field">
-        <input type="tel" required>
+        <input type="tel" name="phone" value="{{ phone|default:'' }}" required>
         <label>Phone</label>
+        {% if errors.phone %}
+          <span style="color: #ff3333; font-size: 0.8rem;">{{ errors.phone }}</span>
+        {% endif %}
       </div>
       <div class="input-field">
-        <input type="password" required>
+        <input type="password" name="password1" required>
         <label>Enter your password</label>
+        {% if errors.password1 %}
+          <span style="color: #ff3333; font-size: 0.8rem;">{{ errors.password1 }}</span>
+        {% endif %}
+      </div>
+      <div class="input-field">
+        <input type="password" name="password2" required>
+        <label>Enter your password</label>
+        {% if errors.password2 %}
+          <span style="color: #ff3333; font-size: 0.8rem;">{{ errors.password2 }}</span>
+        {% endif %}
       </div>
       <button type="submit">Signup</button>
     </form>

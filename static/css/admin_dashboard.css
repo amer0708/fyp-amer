@@ -76,6 +76,7 @@ body {
 
 .customer-list {
     display: flex;
+    flex-direction: column;
     gap: 20px;
     padding-bottom: 10px;
 }
@@ -85,9 +86,16 @@ body {
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     padding: 20px;
-    min-width: 280px;
+    min-width: 400px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.customer-info {
+    flex: 2;
 }
 
 .customer-info h3 {
@@ -102,9 +110,11 @@ body {
 }
 
 .customer-actions {
-    margin-top: 15px;
+    margin-top: 0;
     display: flex;
     gap: 10px;
+    flex: 1;
+    justify-content: flex-end;
 }
 
 .select-customer-btn {
@@ -120,4 +130,128 @@ body {
 
 .select-customer-btn:hover {
     background-color: #0b7dda;
+}
+
+/* Navigation buttons for customer actions */
+.view-order-btn, .submit-quotation-btn, .confirm-payment-btn, .update-status-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    flex-grow: 1;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    font-size: 14px;
+}
+
+.view-order-btn {
+    background-color: #2196F3;
+}
+.view-order-btn:hover {
+    background-color: #1769aa;
+}
+
+.submit-quotation-btn {
+    background-color: #4CAF50;
+}
+.submit-quotation-btn:hover {
+    background-color: #357a38;
+}
+
+.confirm-payment-btn {
+    background-color: #FF9800;
+}
+.confirm-payment-btn:hover {
+    background-color: #c66900;
+}
+
+.update-status-btn {
+    background-color: #9C27B0;
+}
+.update-status-btn:hover {
+    background-color: #6d1b7b;
+}
+
+/* Add spacing between action buttons */
+.order-table td {
+    vertical-align: middle;
+    padding: 1em 0.7em;
+}
+.order-table th {
+    padding: 1em 0.7em;
+}
+.order-table .view-order-btn,
+.order-table .submit-quotation-btn,
+.order-table .confirm-payment-btn,
+.order-table .update-status-btn {
+    margin-right: 0.4em;
+    margin-bottom: 0.4em;
+    font-size: 13px;
+    padding: 7px 12px;
+    min-width: 110px;
+    display: inline-block;
+    white-space: nowrap;
+}
+.order-table .update-status-btn {
+    margin-right: 0;
+}
+@media (max-width: 900px) {
+    .order-table .view-order-btn,
+    .order-table .submit-quotation-btn,
+    .order-table .confirm-payment-btn,
+    .order-table .update-status-btn {
+        min-width: 90px;
+        font-size: 12px;
+        padding: 6px 7px;
+    }
+}
+
+.order-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 1em;
+    background: #f8fbff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.order-table th, .order-table td {
+    border: 1px solid #e3eaf2;
+}
+.order-table th {
+    background: #2563eb;
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.order-table tr:nth-child(even) {
+    background: #eaf1fb;
+}
+.order-table tr:nth-child(odd) {
+    background: #f8fbff;
+}
+.order-table tr:hover {
+    background: #dbeafe;
+    transition: background 0.2s;
+}
+
+.disabled-btn {
+    display: inline-block;
+    padding: 0.6em 1.2em;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    background: #ccc;
+    color: #888;
+    border: none;
+    cursor: not-allowed;
+    pointer-events: none;
+    margin-right: 0.5em;
+    margin-bottom: 0.3em;
+    text-align: center;
+    min-width: 120px;
 }

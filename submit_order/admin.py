@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import Order, StandardSizeQuantity, CustomSize
 
-# Register your models here.
+admin.site.register(Order)
+admin.site.register(StandardSizeQuantity)
+admin.site.register(CustomSize)

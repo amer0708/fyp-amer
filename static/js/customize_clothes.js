@@ -1,5 +1,3 @@
-console.log('JavaScript is loaded and running');
-
 document.addEventListener('DOMContentLoaded', function() {
     // State management
     const state = {
@@ -21,25 +19,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 minX: 90,
                 maxX: 210,
                 minY: 100,
-                maxY: 300
+                maxY: 300,
+                leftImage: false,
+                rightImage: false,
+                leftText: false
             },
             back: {
                 minX: 90,
                 maxX: 210,
                 minY: 100,
-                maxY: 300
+                maxY: 300,
+                image: false,
+                text: false
             },
             'left-shoulder': {
                 minX: 120,
                 maxX: 180,
                 minY: 100,
-                maxY: 300
+                maxY: 300,
+                image: false,
+                text: false
             },
             'right-shoulder': {
                 minX: 120,
                 maxX: 180,
                 minY: 100,
-                maxY: 300
+                maxY: 300,
+                image: false,
+                text: false
             }
         },
         textDefaults: {
@@ -53,6 +60,19 @@ document.addEventListener('DOMContentLoaded', function() {
             left: false,
             right: false
         }
+    };
+    window.state = state;
+
+    // === Default positions for design elements ===
+    const DEFAULT_POSITIONS = {
+        front: {
+            leftImage:  { x: 285, y: 130 },
+            rightImage: { x: 163, y: 130 },
+            text:       { x: 190, y: 195 }
+        },
+        back:     { image: { x: 217, y: 125 }, text: { x: 240, y: 190 } },
+        'left-shoulder':  { image: { x: 230, y: 170 }, text: { x: 255, y: 255 } },
+        'right-shoulder': { image: { x: 210, y: 170 }, text: { x: 240, y: 250 } }
     };
 
     // DOM Elements
@@ -119,6 +139,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const rightPocketCheckbox = document.getElementById('rightPocket');
     const pocketsSummary = document.getElementById('pockets-summary');
     const downloadBtn = document.getElementById('downloadBtn');
+    const previewBtn = document.getElementById('previewBtn');
+    const modal = document.getElementById('previewModal');
+    const closeModal = document.querySelector('.close-modal');
+    const previewContainer = document.getElementById('previewContainer');
 
     // Initialize UI
     initializeUI();
@@ -167,30 +191,51 @@ document.addEventListener('DOMContentLoaded', function() {
     designImageUploadInput.addEventListener('change', handleDesignImageUpload);
     addTextBtn.addEventListener('click', addTextToDesign);
 
-    // Add view button event listeners
+    // View buttons
     document.querySelectorAll('.view-btn').forEach(button => {
         button.addEventListener('click', function() {
             switchView(this.dataset.view);
         });
     });
 
-    // Pocket event listeners
+    // Pocket checkboxes
     leftPocketCheckbox.addEventListener('change', updatePockets);
     rightPocketCheckbox.addEventListener('change', updatePockets);
 
-    // Download button event listener
-    downloadBtn.addEventListener('click', downloadDesign);
+    // Download button
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', downloadDesign);
+    }
 
-    // Add mouse/touch event listeners to all SVGs
-    document.querySelectorAll('.shirt-svg').forEach(svg => {
-        svg.addEventListener('mousedown', handleSvgMouseDown);
-        svg.addEventListener('touchstart', handleSvgTouchStart, { passive: false });
+    // Preview button
+    if (previewBtn) {
+        previewBtn.addEventListener('click', showDesignPreview);
+    }
+
+    // Modal close button
+    if (closeModal) {
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
     });
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('touchmove', handleSvgTouchMove, { passive: false });
-    document.addEventListener('touchend', handleSvgTouchEnd);
+    // Drag and drop events (REMOVE ALL DRAGGABLE FUNCTIONALITY)
+    // document.querySelectorAll('.shirt-svg').forEach(svg => {
+    //     svg.addEventListener('mousedown', ...);
+    //     svg.addEventListener('touchstart', ...);
+    // });
+    // document.addEventListener('mousemove', handleMouseMove);
+    // document.addEventListener('mouseup', handleMouseUp);
+    // document.addEventListener('touchmove', handleSvgTouchMove, { passive: false });
+    // document.addEventListener('touchend', handleSvgTouchEnd);
+    // Remove handleSvgMouseDown, handleMouseMove, handleMouseUp, handleSvgTouchStart, handleSvgTouchMove, handleSvgTouchEnd functions if not used elsewhere.
 
     // UI Initialization
     function initializeUI() {
@@ -205,14 +250,13 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePockets();
     }
 
+    // Color setting functions
     function setBodyColor(color) {
         state.colors.body = color;
         Object.values(shirtBodyElements).forEach(elements => {
             if (elements) {
                 elements.forEach(el => {
-                    // Set the fill attribute
                     el.setAttribute('fill', color);
-                    // Also update the style attribute if it exists
                     const currentStyle = el.getAttribute('style');
                     if (currentStyle) {
                         const updatedStyle = currentStyle.replace(/fill:[^;]+;?/g, '');
@@ -225,19 +269,13 @@ document.addEventListener('DOMContentLoaded', function() {
             bodyColorButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.color === color));
         }
         updateColorSwatches();
-        // Remove or comment out this block to prevent pocket color from being updated
-        // document.querySelectorAll('.pocket').forEach(pocket => {
-        //     pocket.setAttribute('fill', color);
-        // });
     }
 
     function setSleeveColor(color) {
         state.colors.sleeves = color;
         Object.values(sleeveElements).forEach(sleeves => {
             if (sleeves) sleeves.forEach(sleeve => {
-                // Set the fill attribute
                 sleeve.setAttribute('fill', color);
-                // Also update the style attribute if it exists
                 const currentStyle = sleeve.getAttribute('style');
                 if (currentStyle) {
                     const updatedStyle = currentStyle.replace(/fill:[^;]+;?/g, '');
@@ -250,14 +288,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         updateColorSwatches();
     }
+
     function setSleeveBandColor(color) {
         state.colors.sleeveBand = color;
         Object.values(sleeveBandElements).forEach(elements => {
             if (elements) {
                 elements.forEach(el => {
-                    // Set the fill attribute
                     el.setAttribute('fill', color);
-                    // Also update the style attribute if it exists
                     const currentStyle = el.getAttribute('style');
                     if (currentStyle) {
                         const updatedStyle = currentStyle.replace(/fill:[^;]+;?/g, '');
@@ -277,9 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
         Object.values(collarElements).forEach(elements => {
             if (elements) {
                 elements.forEach(el => {
-                    // Set the fill attribute
                     el.setAttribute('fill', color);
-                    // Also update the style attribute if it exists
                     const currentStyle = el.getAttribute('style');
                     if (currentStyle) {
                         const updatedStyle = currentStyle.replace(/fill:[^;]+;?/g, '');
@@ -299,9 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
         Object.values(buttonElements).forEach(elements => {
             if (elements) {
                 elements.forEach(el => {
-                    // Set the fill attribute
                     el.setAttribute('fill', color);
-                    // Also update the style attribute if it exists
                     const currentStyle = el.getAttribute('style');
                     if (currentStyle) {
                         const updatedStyle = currentStyle.replace(/fill:[^;]+;?/g, '');
@@ -321,9 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
         Object.values(buttonLineElements).forEach(elements => {
             if (elements) {
                 elements.forEach(el => {
-                    // Set the fill attribute
                     el.setAttribute('fill', color);
-                    // Also update the style attribute if it exists
                     const currentStyle = el.getAttribute('style');
                     if (currentStyle) {
                         const updatedStyle = currentStyle.replace(/fill:[^;]+;?/g, '');
@@ -337,6 +368,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         updateColorSwatches();
     }
+
     function updateColorSwatches() {
         if (bodyColorSwatch) bodyColorSwatch.style.backgroundColor = state.colors.body;
         if (sleeveColorSwatch) sleeveColorSwatch.style.backgroundColor = state.colors.sleeves;
@@ -350,42 +382,47 @@ document.addEventListener('DOMContentLoaded', function() {
         state.currentView = view;
         currentViewDisplay.textContent = view.charAt(0).toUpperCase() + view.slice(1).replace('-', ' ');
         
-        // Update active button
         document.querySelectorAll('.view-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.view === view);
         });
         
-        // Show/hide views
         document.querySelectorAll('.shirt-view').forEach(viewEl => {
             viewEl.classList.toggle('active', viewEl.dataset.view === view);
         });
         
-        // Re-render design elements for this view
         renderDesignElements();
-
-        // Update pockets visibility based on view
         updatePocketVisibility();
+        updateAddElementButtonStates();
+    }
+
+    function updateAddElementButtonStates() {
+        const currentViewState = state.placementAreas[state.currentView];
+        const addTextBtn = document.getElementById('add-text-btn');
+        
+        if (state.currentView === 'front') {
+            addTextBtn.disabled = currentViewState.leftText;
+            designImageUploadArea.style.opacity = (currentViewState.leftImage && currentViewState.rightImage) ? '0.5' : '1';
+        } else {
+            addTextBtn.disabled = currentViewState.text;
+            designImageUploadArea.style.opacity = currentViewState.image ? '0.5' : '1';
+        }
     }
 
     function updatePockets() {
         state.pockets.left = leftPocketCheckbox.checked;
         state.pockets.right = rightPocketCheckbox.checked;
 
-        // Update summary
         let pocketText = [];
         if (state.pockets.left) pocketText.push('Left');
         if (state.pockets.right) pocketText.push('Right');
         pocketsSummary.textContent = pocketText.length ? pocketText.join(' and ') : 'None selected';
 
-        // Update pocket visibility
         updatePocketVisibility();
     }
 
     function updatePocketVisibility() {
-        // Remove existing pockets
         document.querySelectorAll('.pocket').forEach(pocket => pocket.remove());
 
-        // Only show pockets in front view
         if (state.currentView === 'front') {
             const svg = document.querySelector('.shirt-svg[data-view="front"]');
             
@@ -399,17 +436,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function addPocket(svg, side) {
-        // Pocket outline path (no fill)
         const pocket = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         pocket.classList.add('pocket');
-        // Pocket size
         const width = 60;
         const height = 60;
         const pointHeight = 75;
-        // Position for left and right pockets
-        const xOffset = side === 'left' ? 280 :160;
-        const yOffset = 195;
-        // The pocket path, shifted by xOffset/yOffset
+        const xOffset = side === 'left' ? 280 : 160;
+        const yOffset = 205;
         const pocketPath = `M${xOffset} ${yOffset} H${xOffset+width} V${yOffset+height} L${xOffset+width/2} ${yOffset+pointHeight} L${xOffset} ${yOffset+height} Z`;
         pocket.setAttribute('d', pocketPath);
         pocket.setAttribute('fill', 'none');
@@ -423,27 +456,55 @@ document.addEventListener('DOMContentLoaded', function() {
         const files = event.target.files;
         if (!files || files.length === 0) return;
 
-        Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imageId = 'img-' + Date.now() + Math.random().toString(36).substr(2, 9);
-                const imageData = {
-                    id: imageId,
-                    type: 'image',
-                    dataUrl: e.target.result,
-                    x: 150,
-                    y: 150,
-                    width: 50,
-                    height: 50,
-                    view: state.currentView
-                };
+        const currentViewState = state.placementAreas[state.currentView];
+        
+        // Check if we can add more images to this view
+        if (state.currentView === 'front') {
+            if (currentViewState.leftImage && currentViewState.rightImage) {
+                alert('Front view can only have 2 images (one on left and one on right)');
+                return;
+            }
+        } else {
+            if (currentViewState.image) {
+                alert('This view can only have 1 image');
+                return;
+            }
+        }
 
-                state.designElements.push(imageData);
-                addElementToSvg(imageData);
-                renderDesignElements();
+        const file = files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imageId = 'img-' + Date.now() + Math.random().toString(36).substr(2, 9);
+            const imageData = {
+                id: imageId,
+                type: 'image',
+                dataUrl: e.target.result,
+                x: 200,
+                y: 150,
+                width: 50,
+                height: 50,
+                view: state.currentView
             };
-            reader.readAsDataURL(file);
-        });
+
+            // For front view, determine if this is left or right image
+            if (state.currentView === 'front') {
+                if (!currentViewState.leftImage) {
+                    imageData.position = 'left';
+                    state.placementAreas.front.leftImage = true;
+                } else if (!currentViewState.rightImage) {
+                    imageData.position = 'right';
+                    state.placementAreas.front.rightImage = true;
+                }
+            } else {
+                state.placementAreas[state.currentView].image = true;
+            }
+
+            state.designElements.push(imageData);
+            addElementToSvg(imageData);
+            renderDesignElements();
+            updateAddElementButtonStates();
+        };
+        reader.readAsDataURL(file);
         designImageUploadInput.value = '';
     }
 
@@ -455,19 +516,32 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!draggableContainer) return;
 
         if (elementData.type === 'image') {
+            // Set default position for each view
+            if (elementData.view === 'front' && elementData.position) {
+                if (elementData.position === 'left' && DEFAULT_POSITIONS.front.leftImage) {
+                    elementData.x = DEFAULT_POSITIONS.front.leftImage.x;
+                    elementData.y = DEFAULT_POSITIONS.front.leftImage.y;
+                } else if (elementData.position === 'right' && DEFAULT_POSITIONS.front.rightImage) {
+                    elementData.x = DEFAULT_POSITIONS.front.rightImage.x;
+                    elementData.y = DEFAULT_POSITIONS.front.rightImage.y;
+                }
+            } else if (DEFAULT_POSITIONS[elementData.view]) {
+                elementData.x = DEFAULT_POSITIONS[elementData.view].image.x;
+                elementData.y = DEFAULT_POSITIONS[elementData.view].image.y;
+            }
+            
             const imageGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             imageGroup.setAttribute('id', elementData.id);
             imageGroup.setAttribute('class', 'draggable-image');
+            
             imageGroup.setAttribute('transform', `translate(${elementData.x}, ${elementData.y})`);
 
-            // Add transparent rectangle for dragging
             const dragArea = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             dragArea.setAttribute('width', elementData.width);
             dragArea.setAttribute('height', elementData.height);
             dragArea.setAttribute('fill', 'transparent');
             dragArea.setAttribute('pointer-events', 'all');
 
-            // Add image element
             const imageElement = document.createElementNS('http://www.w3.org/2000/svg', 'image');
             imageElement.setAttribute('href', elementData.dataUrl);
             imageElement.setAttribute('width', elementData.width);
@@ -479,12 +553,18 @@ document.addEventListener('DOMContentLoaded', function() {
             imageGroup.appendChild(imageElement);
             draggableContainer.appendChild(imageGroup);
         } else if (elementData.type === 'text') {
+            // Set default position for each view
+            if (DEFAULT_POSITIONS[elementData.view]) {
+                elementData.x = DEFAULT_POSITIONS[elementData.view].text.x;
+                elementData.y = DEFAULT_POSITIONS[elementData.view].text.y;
+            }
+            
             const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             textGroup.setAttribute('id', elementData.id);
             textGroup.setAttribute('class', 'draggable-text');
+            
             textGroup.setAttribute('transform', `translate(${elementData.x}, ${elementData.y})`);
 
-            // Create text element
             const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             textElement.setAttribute('fill', elementData.color);
             textElement.setAttribute('font-size', elementData.fontSize);
@@ -496,7 +576,6 @@ document.addEventListener('DOMContentLoaded', function() {
             textGroup.appendChild(textElement);
             draggableContainer.appendChild(textGroup);
 
-            // Store dimensions after rendering
             const bbox = textElement.getBBox();
             elementData.width = bbox.width;
             elementData.height = bbox.height;
@@ -506,6 +585,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Text Functions
     function addTextToDesign() {
+        const currentViewState = state.placementAreas[state.currentView];
+        
+        // Check if we can add more text to this view
+        if (state.currentView === 'front') {
+            if (currentViewState.leftText) {
+                alert('Front view can only have 1 text on the left side');
+                return;
+            }
+        } else {
+            if (currentViewState.text) {
+                alert('This view can only have 1 text');
+                return;
+            }
+        }
+
         const textId = 'text-' + Date.now() + Math.random().toString(36).substr(2, 9);
         const textData = {
             id: textId,
@@ -519,10 +613,18 @@ document.addEventListener('DOMContentLoaded', function() {
             view: state.currentView
         };
 
+        // Mark text as added for this view
+        if (state.currentView === 'front') {
+            state.placementAreas.front.leftText = true;
+        } else {
+            state.placementAreas[state.currentView].text = true;
+        }
+
         state.designElements.push(textData);
         addElementToSvg(textData);
         renderDesignElements();
         openTextEditor(textId);
+        updateAddElementButtonStates();
     }
 
     function openTextEditor(elementId) {
@@ -560,7 +662,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 elementDiv.innerHTML = `
                     <div class="element-details">
                         <img src="${element.dataUrl}" alt="Design Image" class="design-image-thumbnail">
-                        <span>Image ${index + 1}</span>
+                        <span>Image ${index + 1}${element.position ? ' (' + element.position + ')' : ''}</span>
                     </div>
                     <div class="element-controls">
                         <button class="element-control-btn select-btn" data-id="${element.id}">Select</button>
@@ -584,7 +686,6 @@ document.addEventListener('DOMContentLoaded', function() {
             designElementsContainer.appendChild(elementDiv);
         });
 
-        // Add event listeners
         document.querySelectorAll('.select-btn').forEach(button => {
             button.addEventListener('click', function() {
                 setActiveElement(this.dataset.id);
@@ -623,166 +724,56 @@ document.addEventListener('DOMContentLoaded', function() {
             if (svgElement) {
                 svgElement.remove();
             }
+            
+            // Update placement area state
+            if (element.view === 'front') {
+                if (element.type === 'image') {
+                    if (element.position === 'left') {
+                        state.placementAreas.front.leftImage = false;
+                    } else if (element.position === 'right') {
+                        state.placementAreas.front.rightImage = false;
+                    }
+                } else if (element.type === 'text') {
+                    state.placementAreas.front.leftText = false;
+                }
+            } else {
+                if (element.type === 'image') {
+                    state.placementAreas[element.view].image = false;
+                } else if (element.type === 'text') {
+                    state.placementAreas[element.view].text = false;
+                }
+            }
         }
         
         state.designElements = state.designElements.filter(el => el.id !== elementId);
         renderDesignElements();
+        updateAddElementButtonStates();
         
         if (state.activeElementId === elementId) {
             state.activeElementId = null;
         }
     }
 
-    function handleSvgMouseDown(event) {
-        const target = event.target;
-        const isDraggable = target.classList.contains('draggable-text') || 
-                          target.classList.contains('draggable-image') ||
-                          (target.parentNode && (
-                              target.parentNode.classList.contains('draggable-text') || 
-                              target.parentNode.classList.contains('draggable-image')
-                          ));
-
-        if (!isDraggable) return;
-
-        let targetElement = target;
-        while (targetElement && !targetElement.classList.contains('draggable-text') && !targetElement.classList.contains('draggable-image')) {
-            targetElement = targetElement.parentNode;
-        }
-
-        if (!targetElement) return;
-
-        setActiveElement(targetElement.id);
-        state.dragging = true;
-
-        const transform = targetElement.getAttribute('transform');
-        const match = transform.match(/translate\(([\d.]+),\s*([\d.]+)\)/);
-        if (!match) return;
-
-        const currentX = parseFloat(match[1]);
-        const currentY = parseFloat(match[2]);
-
-        const svg = targetElement.closest('.shirt-svg');
-        const svgRect = svg.getBoundingClientRect();
-        const point = svg.createSVGPoint();
-        point.x = event.clientX - svgRect.left;
-        point.y = event.clientY - svgRect.top;
-        const svgPoint = point.matrixTransform(svg.getScreenCTM().inverse());
-
-        state.offset = {
-            x: svgPoint.x - currentX,
-            y: svgPoint.y - currentY
-        };
-
-        targetElement.classList.add('dragging');
-    }
-
-    function handleMouseMove(event) {
-        if (!state.dragging || !state.activeElementId) return;
-        event.preventDefault();
-
-        const element = document.getElementById(state.activeElementId);
-        if (!element) return;
-
-        const elementData = state.designElements.find(el => el.id === state.activeElementId);
-        if (!elementData) return;
-
-        // Get SVG coordinates
-        const svg = element.closest('.shirt-svg');
-        const svgRect = svg.getBoundingClientRect();
-        const point = svg.createSVGPoint();
-        point.x = event.clientX - svgRect.left;
-        point.y = event.clientY - svgRect.top;
-        const svgPoint = point.matrixTransform(svg.getScreenCTM().inverse());
-
-        // Calculate boundaries
-        const area = state.placementAreas[elementData.view];
-        let width = elementData.width || 0;
-        let height = elementData.height || 0;
-
-        // Extra padding for text to ensure it stays fully visible
-        const paddingX = elementData.type === 'text' ? width/2 : 0;
-        const paddingY = elementData.type === 'text' ? height/2 : 0;
-        
-        const newX = Math.max(area.minX + paddingX, Math.min(
-            svgPoint.x - state.offset.x, 
-            area.maxX - paddingX
-        ));
-        const newY = Math.max(area.minY + paddingY, Math.min(
-            svgPoint.y - state.offset.y, 
-            area.maxY - paddingY
-        ));
-
-        element.setAttribute('transform', `translate(${newX}, ${newY})`);
-        elementData.x = newX;
-        elementData.y = newY;
-    }
-
-    function handleMouseUp() {
-        if (state.dragging && state.activeElementId) {
-            const element = document.getElementById(state.activeElementId);
-            if (element) {
-                element.classList.remove('dragging');
-            }
-        }
-        state.dragging = false;
-    }
-
-    function handleSvgTouchStart(event) {
-        if (event.touches.length !== 1) return;
-        event.preventDefault();
-
-        const touch = event.touches[0];
-        const mouseEvent = new MouseEvent('mousedown', {
-            clientX: touch.clientX,
-            clientY: touch.clientY,
-            bubbles: true
-        });
-        event.target.dispatchEvent(mouseEvent);
-    }
-
-    function handleSvgTouchMove(event) {
-        if (event.touches.length !== 1 || !state.dragging) return;
-        event.preventDefault();
-
-        const touch = event.touches[0];
-        const mouseEvent = new MouseEvent('mousemove', {
-            clientX: touch.clientX,
-            clientY: touch.clientY,
-            bubbles: true
-        });
-        document.dispatchEvent(mouseEvent);
-    }
-
-    function handleSvgTouchEnd() {
-        if (!state.dragging) return;
-        const mouseEvent = new MouseEvent('mouseup', { bubbles: true });
-        document.dispatchEvent(mouseEvent);
-    }
-
+    // Download Function
     function downloadDesign() {
-        // Create a new SVG element that will contain all views
         const combinedSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        const viewWidth = 500; // Use 500px for each view
-        const viewHeight = 600; // Restore original height
+        const viewWidth = 500;
+        const viewHeight = 600;
         combinedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-        combinedSvg.setAttribute('viewBox', `0 0 ${viewWidth * 4} ${viewHeight}`); // Width to accommodate all 4 views side by side
+        combinedSvg.setAttribute('viewBox', `0 0 ${viewWidth * 4} ${viewHeight}`);
 
-        // Get all views
         const views = ['front', 'back', 'left-shoulder', 'right-shoulder'];
         
         views.forEach((view, index) => {
-            // Get the original SVG for this view
             const viewContainer = document.querySelector(`.shirt-view[data-view="${view}"]`);
             if (!viewContainer) return;
             
             const originalSvg = viewContainer.querySelector('svg');
             if (!originalSvg) return;
 
-            // Create a group for this view
             const viewGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             viewGroup.setAttribute('transform', `translate(${index * viewWidth}, 0)`);
 
-            // Clone the contents of the original SVG and clean them
             const contents = originalSvg.cloneNode(true);
             Array.from(contents.children).forEach(child => {
                 const cleanedChild = cleanSvgElement(child.cloneNode(true));
@@ -791,7 +782,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            // Add view label
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', (viewWidth / 2).toString());
             text.setAttribute('y', (viewHeight + 40).toString());
@@ -804,21 +794,17 @@ document.addEventListener('DOMContentLoaded', function() {
             combinedSvg.appendChild(viewGroup);
         });
 
-        // Add this function to fix malformed path attributes
         function fixMalformedPaths(svgElement) {
             svgElement.querySelectorAll('path').forEach(el => {
-                // Only allow valid SVG attributes
                 Array.from(el.attributes).forEach(attr => {
                     if (!['d', 'fill', 'stroke', 'stroke-width', 'id', 'class', 'style'].includes(attr.name)) {
                         el.removeAttribute(attr.name);
                     }
                 });
-                // If fill contains a semicolon, keep only the color
                 let fill = el.getAttribute('fill');
                 if (fill && fill.includes(';')) {
                     el.setAttribute('fill', fill.split(';')[0]);
                 }
-                // If style attribute is present and malformed, remove it
                 let style = el.getAttribute('style');
                 if (style && /[;:][^;:]*[;:]/.test(style) && !style.includes(':')) {
                     el.removeAttribute('style');
@@ -826,38 +812,69 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // After combining all views into combinedSvg
         fixMalformedPaths(combinedSvg);
 
-        // Convert SVG to string
         const serializer = new XMLSerializer();
         const svgString = serializer.serializeToString(combinedSvg);
         
-        // Create Blob and URL
         const blob = new Blob([svgString], {type: 'image/svg+xml'});
         const url = URL.createObjectURL(blob);
         
-        // Create download link
         const link = document.createElement('a');
         link.href = url;
         link.download = 'shirt-design-all-views.svg';
         
-        // Trigger download
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         
-        // Clean up
         URL.revokeObjectURL(url);
     }
 
+    // Preview Function
+    function showDesignPreview() {
+        if (!modal || !previewContainer) return;
+        const viewWidth = 500;
+        const viewHeight = 600;
+        const views = ['front', 'back', 'left-shoulder', 'right-shoulder'];
+        const previewSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        previewSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        previewSvg.setAttribute('viewBox', `0 0 ${viewWidth * 4} ${viewHeight}`);
+        views.forEach((view, index) => {
+            const viewContainer = document.querySelector(`.shirt-view[data-view="${view}"]`);
+            if (!viewContainer) return;
+            const originalSvg = viewContainer.querySelector('svg');
+            if (!originalSvg) return;
+            const viewGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            viewGroup.setAttribute('transform', `translate(${index * viewWidth}, 0)`);
+            // Only process element nodes
+            Array.from(originalSvg.childNodes).forEach(child => {
+                if (child.nodeType === 1) {
+                    const cleanedChild = cleanSvgElement(child.cloneNode(true));
+                    if (cleanedChild) viewGroup.appendChild(cleanedChild);
+                }
+            });
+            // Add view label
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', (viewWidth / 2).toString());
+            text.setAttribute('y', (viewHeight + 40).toString());
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('font-family', 'Arial');
+            text.setAttribute('font-size', '18');
+            text.textContent = view.charAt(0).toUpperCase() + view.slice(1).replace('-', ' ');
+            viewGroup.appendChild(text);
+            previewSvg.appendChild(viewGroup);
+        });
+        previewContainer.innerHTML = '';
+        previewContainer.appendChild(previewSvg);
+        modal.style.display = 'block';
+    }
+
     function cleanSvgElement(element) {
-        // Remove sodipodi:namedview elements entirely (they contain problematic attributes)
         if (element.tagName === 'sodipodi:namedview') {
-            return null; // This will remove the element
+            return null;
         }
 
-        // Remove Inkscape and Sodipodi attributes
         const inkscapeAttrs = [
             'inkscape:version', 'inkscape:showpageshadow', 'inkscape:pageopacity',
             'inkscape:pagecheckerboard', 'inkscape:deskcolor', 'inkscape:zoom',
@@ -873,7 +890,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Remove Inkscape and Sodipodi namespaces from the element
         if (element.hasAttribute('xmlns:inkscape')) {
             element.removeAttribute('xmlns:inkscape');
         }
@@ -881,7 +897,6 @@ document.addEventListener('DOMContentLoaded', function() {
             element.removeAttribute('xmlns:sodipodi');
         }
 
-        // Recursively clean child elements
         const children = Array.from(element.children);
         children.forEach(child => {
             const cleanedChild = cleanSvgElement(child);
@@ -892,4 +907,106 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return element;
     }
+    // Modify the prepareOrderSubmission function
+function prepareOrderSubmission() {
+    // Collect all design data
+    const designData = {
+        colors: state.colors,
+        designElements: state.designElements,
+        pockets: state.pockets,
+        views: ['front', 'back', 'left-shoulder', 'right-shoulder']
+    };
+
+    // Create a combined SVG of all views
+    const combinedSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const viewWidth = 500;
+    const viewHeight = 600;
+    combinedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    combinedSvg.setAttribute('viewBox', `0 0 ${viewWidth * 4} ${viewHeight}`);
+
+    const views = ['front', 'back', 'left-shoulder', 'right-shoulder'];
+    
+    views.forEach((view, index) => {
+        const viewContainer = document.querySelector(`.shirt-view[data-view="${view}"]`);
+        if (!viewContainer) return;
+        
+        const originalSvg = viewContainer.querySelector('svg');
+        if (!originalSvg) return;
+
+        const viewGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        viewGroup.setAttribute('transform', `translate(${index * viewWidth}, 0)`);
+
+        const contents = originalSvg.cloneNode(true);
+        Array.from(contents.children).forEach(child => {
+            const cleanedChild = cleanSvgElement(child.cloneNode(true));
+            if (cleanedChild !== null) {
+                viewGroup.appendChild(cleanedChild);
+            }
+        });
+
+        combinedSvg.appendChild(viewGroup);
+    });
+
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(combinedSvg);
+
+    // Send the design to the server to be saved as an image
+    fetch('/save_design/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),  // You'll need to implement getCookie
+        },
+        body: JSON.stringify({
+            svg_data: svgString,
+            design_data: designData
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Store the design ID in sessionStorage
+            sessionStorage.setItem('design_id', data.design_id);
+            // Redirect to the order form
+            window.location.href = "/submit_order/";
+        } else {
+            alert('Error saving design: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while saving the design.');
+    });
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+// When saving design before redirecting to order page
+function saveAndRedirect() {
+    const designData = getDesignData(); // Your function to collect design data
+    
+    fetch('/customize/save-design/', {
+        method: 'POST',
+        body: JSON.stringify(designData),
+        headers: {'Content-Type': 'application/json'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Pass design ID to order page
+        window.location.href = `/submit-order/?design_id=${data.design_id}`;
+    });
+}
 });

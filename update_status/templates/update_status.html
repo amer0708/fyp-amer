@@ -1,32 +1,119 @@
-{% load static  %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Status</title>
-    <link rel="stylesheet" href="{% static 'css/update_status.css'%}">
+    <link rel="stylesheet" href="{% static 'css/update_status.css' %}">
 </head>
 <body>
     <div class="admin-container">
         <header class="admin-header">
             <div class="customer-header-info">
-                <h1 id="customer-name">Customer Name</h1>
-                <p id="customer-contact">email@example.com | +1 (555) 123-4567</p>
+                <h1 id="customer-name">{{ customer.name }}</h1>
+                <p id="customer-contact">{{ customer.email }} | {{ customer.phone }}</p>
             </div>
             <nav class="admin-nav">
-                <a href="admin_dashboard">Back to Dashboard</a>
+                <a href="/admin_dashboard">Back to Dashboard</a>
                 <a href="review_order">Orders</a>
-                <a href="confirm_payment">Payments</a>
-                <a href="submitquotation">Quotation</a>
+                <a href="/confirm_payment">Payments</a>
+                <a href="/submit_quotation">Quotation</a>
             </nav>
         </header>
 
         <div class="status-list">
-            <!-- Orders for status update will be loaded here -->
+            <div class="status-card">
+                <div class="order-header">
+                    <span class="order-id">Order #{{ order.id }}</span>
+                    <span class="current-status {{ order.status|slugify }}">
+                        {{ order.status|title }}
+                    </span>
+                </div>
+                <div class="status-progress">
+                    <ul class="status-progress-list">
+                        {% for step in status_steps %}
+                        <li class="status-progress-item">
+                            <span class="status-circle
+                                {% if step == 'order review status' and order.review_rejected %} status-rejected
+                                {% elif step == 'receive price quotation' and order.quotation_rejected %} status-rejected
+                                {% elif step == 'in progress' and not order.payment_rejected and order.status_index >= payment_status_index %} status-done
+                                {% elif forloop.counter0 < order.status_index %}
+                                    {% if step == 'payment status' and order.payment_rejected %} status-rejected {% else %} status-done {% endif %}
+                                {% elif forloop.counter0 == order.status_index %}
+                                    {% if step == order.status %} status-done
+                                    {% elif step == 'in progress' and not order.payment_rejected and order.status_index >= payment_status_index %} status-done
+                                    {% elif step == 'payment status' and not order.payment_rejected and order.status_index == payment_status_index %} status-done
+                                    {% elif step == 'completed' and order.status == 'completed' %} status-done
+                                    {% else %} status-current-circle {% endif %}
+                                {% else %} status-future
+                                {% endif %}">
+                                {% if step == 'order review status' and order.review_rejected %}
+                                    <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="8" fill="#f44336"/><path d="M5.5 5.5l5 5m0-5l-5 5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                {% elif step == 'receive price quotation' and order.quotation_rejected %}
+                                    <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="8" fill="#f44336"/><path d="M5.5 5.5l5 5m0-5l-5 5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                {% elif step == order.status %}
+                                    <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="8" fill="#295c2b"/><path d="M5 8.5l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                {% elif step == 'in progress' and not order.payment_rejected and order.status_index >= payment_status_index %}
+                                    <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="8" fill="#295c2b"/><path d="M5 8.5l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                {% elif forloop.counter0 < order.status_index %}
+                                    {% if step == 'payment status' and order.payment_rejected %}
+                                        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="8" fill="#f44336"/><path d="M5.5 5.5l5 5m0-5l-5 5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                    {% else %}
+                                        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="8" fill="#295c2b"/><path d="M5 8.5l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    {% endif %}
+                                {% elif forloop.counter0 == order.status_index %}
+                                    {% if step == 'in progress' and not order.payment_rejected and order.status_index >= payment_status_index %}
+                                        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="8" fill="#295c2b"/><path d="M5 8.5l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    {% elif step == 'payment status' and not order.payment_rejected and order.status_index == payment_status_index %}
+                                        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="8" fill="#295c2b"/><path d="M5 8.5l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    {% elif step == 'completed' and order.status == 'completed' %}
+                                        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:middle;"><circle cx="8" cy="8" r="8" fill="#295c2b"/><path d="M5 8.5l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    {% endif %}
+                                {% endif %}
+                            </span>
+                            <span class="status-label
+                                {% if forloop.counter0 == order.status_index and not step == 'payment status' and order.status_index == payment_status_index %} status-label-current{% endif %}">
+                                {{ step|title }}
+                                {% if step == 'order review status' and order.review_rejected %}
+                                    <span style="color:#f44336;font-weight:600;">(Order Rejected)</span>
+                                {% elif step == 'order review status' and order.review_approved %}
+                                    <span style="color:#2e7d32;font-weight:600;">(Order Accepted)</span>
+                                {% elif step == 'receive price quotation' and order.quotation_rejected %}
+                                    <span style="color:#f44336;font-weight:600;">(Quotation Rejected)</span>
+                                {% elif step == 'payment status' and order.payment_rejected %}
+                                    <span style="color:#f44336;font-weight:600;">(Rejected)</span>
+                                {% endif %}
+                            </span>
+                            <div class="status-date-label">
+                                {% with date=None %}
+                                    {% for h in order.status_history %}
+                                        {% if h.status|lower == step|lower %}
+                                            {% with date=h.date %}{% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ date|default:"-" }}
+                                {% endwith %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% if not order.status == 'completed' and not updated %}
+                <div class="status-update-form">
+                    <h4>Update Status</h4>
+                    <form method="post" action="{% url 'update_order_status' order.id %}">
+                        {% csrf_token %}
+                        <select name="new_status" class="status-select" required>
+                            <option value="">Select new status</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                        <button type="submit" class="update-status-btn">Update Status</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-
-    <script src="{% static 'js/update_status.js' %}"></script>
 </body>
 </html>

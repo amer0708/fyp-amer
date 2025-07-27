@@ -24,7 +24,7 @@ services:
             gunicorn fyp.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - .:/app
-      - ./staticfiles:/app/staticfiles
+      - ./static_volume:/app/staticfiles
       - ./media:/app/media
     ports:
       - "8000:8000"  # ✅ this line exposes it to your browser
@@ -41,3 +41,5 @@ services:
 
 volumes:
   postgres_data:
+  static_volume:
+  

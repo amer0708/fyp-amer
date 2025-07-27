@@ -1,0 +1,243 @@
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.customer-header-info h1 {
+    margin-bottom: 5px;
+}
+
+.customer-header-info p {
+    color: #666;
+}
+
+.admin-nav a {
+    margin-left: 15px;
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.admin-nav a:hover {
+    background-color: #f0f0f0;
+}
+
+.status-list {
+    display: grid;
+    gap: 20px;
+}
+
+.status-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.order-id {
+    font-weight: bold;
+}
+
+.current-status {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.current-status.pending {
+    background-color: #FFF3CD;
+    color: #856404;
+}
+
+.current-status.paid {
+    background-color: #D4EDDA;
+    color: #155724;
+}
+
+.current-status.in-progress {
+    background-color: #CCE5FF;
+    color: #004085;
+}
+
+.current-status.completed {
+    background-color: #D4EDDA;
+    color: #155724;
+}
+
+.status-history {
+    margin-bottom: 15px;
+}
+
+.status-history h4 {
+    margin-bottom: 10px;
+}
+
+.status-history ul {
+    list-style-type: none;
+}
+
+.status-history li {
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #eee;
+    font-size: 14px;
+}
+
+.status-date {
+    color: #777;
+}
+
+.status {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status.pending {
+    background-color: #FFF3CD;
+    color: #856404;
+}
+
+.status.paid {
+    background-color: #D4EDDA;
+    color: #155724;
+}
+
+.status.in-progress {
+    background-color: #CCE5FF;
+    color: #004085;
+}
+
+.status.completed {
+    background-color: #D4EDDA;
+    color: #155724;
+}
+
+.status-update-form {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.status-update-form h4 {
+    margin-bottom: 10px;
+}
+
+.status-select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.update-status-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.update-status-btn:hover {
+    background-color: #3e8e41;
+}
+
+/* Status Progress List Styles */
+.status-progress-list {
+    list-style: none;
+    padding: 0;
+    margin: 30px 0 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.status-progress-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 16px;
+    min-height: 38px;
+    position: relative;
+}
+.status-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #bbb;
+    background: #fff;
+    display: inline-block;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+.status-done {
+    background: #295c2b;
+    border-color: #295c2b;
+}
+.status-current-circle {
+    border-color: #2196F3;
+    background: #fff;
+}
+.status-future {
+    background: #f3f3e7;
+    border-color: #d2d2c7;
+}
+.status-label {
+    font-size: 15px;
+    color: #295c2b;
+    font-weight: 500;
+    margin-top: 0px;
+}
+.status-label-current {
+    color: #2196F3;
+    font-weight: 600;
+}
+.status-date-label {
+    font-size: 14px;
+    color: #295c2b;
+    margin-left: 36px;
+    margin-top: -2px;
+    margin-bottom: 2px;
+    min-width: 80px;
+}
+.status-rejected {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.status-rejected svg {
+    display: block;
+    width: 32px;
+    height: 32px;
+}

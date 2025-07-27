@@ -53,10 +53,12 @@
                                         <span style="color:gray;" class="disabled-btn">View Order</span>
                                     {% endif %}
                                     {% if order.id %}
-                                        {% if order.review and order.review.status == 'rejected' %}
+                                        {% if order.review and order.review.status == 'approved' %}
+                                            <a href="/submitquotation/order/{{ order.id }}/" class="submit-quotation-btn">Submit Price Quotation</a>
+                                        {% elif order.review and order.review.status == 'rejected' %}
                                             <span style="color:gray;" class="disabled-btn">Submit Price Quotation</span>
                                         {% else %}
-                                            <a href="/submitquotation/order/{{ order.id }}/" class="submit-quotation-btn">Submit Price Quotation</a>
+                                            <span style="color:gray;" class="disabled-btn">Submit Price Quotation (Pending Approval)</span>
                                         {% endif %}
                                     {% else %}
                                         <span style="color:gray;" class="disabled-btn">Submit Price Quotation</span>

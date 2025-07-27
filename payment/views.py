@@ -79,10 +79,10 @@ def payment(request):
         )
         # Update order status
         if quotation and quotation.order:
-            quotation.order.status = 'submit deposit payment'
+            quotation.order.status = 'payment status'
             quotation.order.save()
         messages.success(request, 'Payment proof submitted successfully!')
-        return redirect('payment:payment')
+        return redirect('payment:payment_confirmation', payment_id=payment.id)
     else:
         if payment_exists:
             messages.info(request, 'You have already submitted a payment for this quotation.')
@@ -124,3 +124,36 @@ def payment_by_id(request, payment_id):
         'payment_id': payment_id,
     }
     return render(request, 'payment.html', context)
+
+def payment_confirmation(request, payment_id):
+    payment = get_object_or_404(Payment, id=payment_id)
+    quotation = payment.quotation
+    
+    # Get customer and company information
+    customer_name = None
+    company_name = None
+    if quotation:
+        if hasattr(quotation, 'customer') and quotation.customer:
+            customer_name = getattr(quotation.customer, 'full_name', getattr(quotation.customer, 'name', ''))
+        elif hasattr(quotation, 'custom_customer') and quotation.custom_customer:
+            customer_name = quotation.custom_customer.name
+        else:
+            customer_name = 'Customer'
+        company_name = quotation.company_name or 'Company'
+    
+    # Get order number
+    order_number = None
+    if quotation and quotation.order:
+        order_number = quotation.order.order_number
+    
+    context = {
+        'payment': payment,
+        'quotation': quotation,
+        'deposit_amount': quotation.deposit_amount if quotation else None,
+        'order_number': order_number,
+        'payment_date': payment.payment_date.strftime('%Y-%m-%d') if payment.payment_date else None,
+        'submission_time': payment.created_at.strftime('%Y-%m-%d %H:%M') if payment.created_at else None,
+        'customer_name': customer_name,
+        'company_name': company_name,
+    }
+    return render(request, 'payment_confirmation.html', context)

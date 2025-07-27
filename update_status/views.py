@@ -55,14 +55,34 @@ def update_status(request):
             # Custom status index logic
             status = order_obj.status
             status_index = status_steps.index(status) if status in status_steps else 0
+            
+            # If quotation is rejected, stop at "receive price quotation" step
+            if quotation_rejected:
+                status_index = status_steps.index('receive price quotation')
+                available_options = []  # No further status updates allowed
+                # Force the status to be "receive price quotation" when rejected
+                status = 'receive price quotation'
+            # If review is rejected, stop at "order review status" step
+            elif review_rejected:
+                status_index = status_steps.index('order review status')
+                available_options = []  # No further status updates allowed
+                # Force the status to be "order review status" when rejected
+                status = 'order review status'
+            # If payment is rejected, disable status updates
+            elif payment_rejected:
+                available_options = []  # No further status updates allowed
             # If payment is approved, tick 'in progress' too
-            if status == 'payment status' and payment_approved:
+            elif status == 'payment status' and payment_approved:
                 status_index = status_steps.index('in progress')
+                available_options = ['completed']
+            else:
+                available_options = ['completed']
+            
             order = {
                 'id': order_obj.id,
                 'status': status,
                 'status_history': [],  # TODO: fill with real history if available
-                'available_options': ['completed'],
+                'available_options': available_options,
                 'status_index': status_index,
                 'payment_rejected': payment_rejected,
                 'review_rejected': review_rejected,
@@ -89,18 +109,42 @@ def update_status(request):
     updated = request.GET.get('updated') == 'true'
     if updated:
         order['status'] = 'completed'
-    try:
-        status_index = status_steps.index(order['status'].lower())
-    except ValueError:
-        status_index = 0
-    order['status_index'] = status_index
+    
+    # Only recalculate status_index if we don't have a rejected quotation or review
+    if not order.get('quotation_rejected') and not order.get('review_rejected'):
+        try:
+            status_index = status_steps.index(order['status'].lower())
+        except ValueError:
+            status_index = 0
+        order['status_index'] = status_index
     payment_status_index = status_steps.index('payment status')
+    # Get customer information from the order
+    customer_info = {
+        'name': 'John Doe',
+        'email': 'john@example.com', 
+        'phone': '+1 (555) 123-4567'
+    }
+    
+    if order_obj:
+        # Try to get customer info from the order
+        if order_obj.full_name:
+            customer_info['name'] = order_obj.full_name
+        if order_obj.email:
+            customer_info['email'] = order_obj.email
+        if order_obj.phone:
+            customer_info['phone'] = order_obj.phone
+        
+        # If order has a customer user, try to get info from there too
+        if order_obj.customer:
+            if not customer_info['name'] or customer_info['name'] == 'John Doe':
+                customer_info['name'] = getattr(order_obj.customer, 'full_name', getattr(order_obj.customer, 'name', customer_info['name']))
+            if not customer_info['email'] or customer_info['email'] == 'john@example.com':
+                customer_info['email'] = order_obj.customer.email
+            if not customer_info['phone'] or customer_info['phone'] == '+1 (555) 123-4567':
+                customer_info['phone'] = getattr(order_obj.customer, 'phone', customer_info['phone'])
+    
     return render(request, 'update_status.html', {
-        'customer': {
-            'name': 'John Doe',
-            'email': 'john@example.com', 
-            'phone': '+1 (555) 123-4567'
-        },
+        'customer': customer_info,
         'order': order,
         'updated': updated,
         'current_date': timezone.now(),

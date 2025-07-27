@@ -209,37 +209,98 @@ input[type="checkbox"] {
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 1000;
     left: 0;
     top: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     overflow: auto;
-    background-color: rgba(0,0,0,0.4);
+    background: rgba(44, 62, 80, 0.5);
+    transition: background 0.3s;
 }
 
 .modal-content {
-    background-color: #fefefe;
+    background: #f8fafc;
     margin: 5% auto;
-    padding: 20px;
-    border-radius: 8px;
+    padding: 32px 40px 32px 40px;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(44, 62, 80, 0.18);
     max-width: 800px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    min-width: 320px;
     position: relative;
+    animation: modalPop 0.25s cubic-bezier(.4,2,.6,1) 1;
+}
+
+@keyframes modalPop {
+    0% { transform: scale(0.92); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 .close {
-    position: absolute;
-    right: 20px;
-    top: 10px;
-    color: #aaa;
-    font-size: 28px;
+    color: #7f8c8d;
+    float: right;
+    font-size: 2.2rem;
     font-weight: bold;
     cursor: pointer;
+    transition: color 0.2s;
+    position: absolute;
+    top: 18px;
+    right: 28px;
 }
 
 .close:hover {
-    color: black;
+    color: #e74c3c;
+}
+
+.modal-content h3 {
+    color: #2c3e50;
+    margin-bottom: 18px;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.modal-content table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+    margin-bottom: 18px;
+}
+
+.modal-content th, .modal-content td {
+    padding: 14px 16px;
+    text-align: center;
+}
+
+.modal-content th {
+    background: #3A4A58;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.08em;
+    letter-spacing: 0.03em;
+}
+
+.modal-content tr:nth-child(even) {
+    background: #f0f4f8;
+}
+
+.modal-content tr:nth-child(odd) {
+    background: #e9eef3;
+}
+
+.modal-content tr:hover {
+    background: #d6e0ea;
+    transition: background 0.2s;
+}
+
+.button-group button {
+    margin: 0 8px;
+    border-radius: 6px;
+    font-size: 1em;
+    padding: 10px 28px;
 }
 
 table {
@@ -288,8 +349,22 @@ tr.active-chart {
 }
 
 .actions button {
-    padding: 5px 10px;
-    font-size: 0.8em;
+    padding: 8px 18px;
+    font-size: 1em;
+    border: none;
+    border-radius: 6px;
+    background: #3498db;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    margin-right: 6px;
+    outline: none;
+}
+.actions button:hover {
+    background: #217dbb;
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px rgba(44,62,80,0.13);
 }
 
 input[type="checkbox"] {
@@ -349,4 +424,14 @@ input[type="checkbox"] {
     .measurement-grid {
         grid-template-columns: 1fr;
     }
+}
+/* Add to managesizechart.css */
+.dashboard-button {
+    align-self: center;
+    padding: 10px 20px;
+    text-decoration: none;
+}
+
+.dashboard-button:hover {
+    text-decoration: none;
 }

@@ -7,21 +7,38 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f5f7fa;
-    padding: 0;
+    background-color: #F6F2D4;
+    color: #0B3D18;
     margin: 0;
+    padding: 0;
 }
 
 header {
-    background-color: #2c3e50;
-    color: white;
+    background-color: #0B3D18;
+    color: #F6F2D4;
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(11,61,24,0.10);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #F6F2D4;
+}
+
+header nav a {
+    color: #F6F2D4;
+    text-decoration: none;
+    font-weight: 600;
+    margin-right: 2rem;
+    transition: color 0.2s;
+}
+
+header nav a:hover {
+    color: #B3AF87;
 }
 
 .user-info {
@@ -32,6 +49,7 @@ header {
 
 .user-info span {
     margin: 0.2rem 0;
+    color: #B3AF87;
 }
 
 main {
@@ -40,95 +58,179 @@ main {
     margin: 0 auto;
 }
 
-/* Card Styles */
-.card {
-    background-color: white;
+/* Highlighted amount box */
+.highlighted {
+    background-color: #F6F2D4;
+    color: #0B3D18;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 0.8rem 1.2rem;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
-    margin-bottom: 2rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    border: 2px solid #85976C;
+}
+
+/* Card styling */
+.card {
+    background-color: #B3AF87;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(11,61,24,0.08);
+    padding: 2.5rem 2rem 2rem 2rem;
+    margin: 2rem auto;
+    max-width: 1100px;
+    width: 100%;
 }
 
 .card h2 {
+    color: #0B3D18;
+    border-bottom: 1px solid #85976C;
+    font-size: 1.5rem;
     margin-bottom: 1.5rem;
-    color: #2c3e50;
-    border-bottom: 1px solid #eee;
     padding-bottom: 0.5rem;
 }
 
-/* Highlighted Elements */
-.highlighted {
-    background-color: #fff8e1;
-    font-weight: bold;
-    color: #e65100;
-    border: 1px solid #ffe0b2;
-    padding: 0.8rem;
-    border-radius: 8px;
-}
-
-/* Payment Form Styles */
+/* Form group spacing */
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 .form-group label {
+    color: #0B3D18;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.7rem;
     display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: #555;
 }
 
 .form-group input[type="text"],
-.form-group input[type="date"],
-.form-group input[type="file"],
 .form-group textarea {
+    background: #F6F2D4;
+    color: #0B3D18;
+    border: 1px solid #85976C;
     width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    padding: 0.8rem 1.2rem;
+    border-radius: 10px;
     font-size: 1rem;
-    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+    box-sizing: border-box;
+    transition: border 0.2s;
 }
 
 .form-group input[type="text"]:focus,
-.form-group input[type="date"]:focus,
 .form-group textarea:focus {
+    border: 1.5px solid #0B3D18;
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
-.form-group textarea {
-    resize: vertical;
-    min-height: 100px;
+.form-group input[type="file"] {
+    color: #0B3D18;
+    font-size: 1rem;
+    margin-top: 0.7rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input[type="date"] {
+    background: #F6F2D4;
+    color: #0B3D18;
+    border: 1px solid #85976C;
+    width: 100%;
+    padding: 0.8rem 1.2rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    box-sizing: border-box;
+    transition: border 0.2s;
+}
+
+.form-group input[type="date"]:focus {
+    border: 1.5px solid #0B3D18;
+    outline: none;
 }
 
 .file-requirements {
-    font-size: 0.8rem;
-    color: #666;
+    color: #85976C;
+    font-size: 0.98rem;
     margin-top: 0.3rem;
 }
 
 .btn-primary {
-    background-color: #3498db;
-    color: white;
+    background-color: #0B3D18;
+    color: #F6F2D4;
     border: none;
     padding: 0.8rem 1.5rem;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background 0.2s;
+    margin-top: 0.7rem;
+    margin-bottom: 0.5rem;
+    display: block;
+    box-shadow: 0 2px 8px rgba(11,61,24,0.10);
 }
 
 .btn-primary:hover {
-    background-color: #2980b9;
+    background-color: #85976C;
+    color: #0B3D18;
+}
+
+/* Responsive adjustments */
+@media (max-width: 700px) {
+    .card {
+        padding: 1.2rem 0.5rem;
+        max-width: 98vw;
+    }
+    .highlighted {
+        font-size: 0.95rem;
+        padding: 0.7rem 0.7rem;
+    }
+    .btn-primary {
+        font-size: 0.95rem;
+        padding: 0.7rem 1rem;
+    }
+}
+
+/* Payment Form Styles */
+.payment-details {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.payment-row {
+    display: flex;
+    margin: 0.5rem 0;
+}
+
+.payment-row .label {
+    font-weight: 600;
+    width: 150px;
+    color: #666;
+}
+
+.payment-row .value {
+    flex: 1;
+}
+
+.bank-details {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.bank-details h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
 }
 
 .btn-secondary {
-    background-color: white;
-    color: #3498db;
-    border: 1px solid #3498db;
+    background-color: #F6F2D4;
+    color: #0B3D18;
+    border: 1px solid #0B3D18;
     padding: 0.8rem 1.5rem;
     border-radius: 8px;
     font-size: 1rem;
@@ -139,48 +241,15 @@ main {
 }
 
 .btn-secondary:hover {
-    background-color: #f0f8ff;
+    background-color: #B3AF87;
+    color: #0B3D18;
 }
 
-/* File Preview Styles */
-#file-preview-container {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    border: 1px dashed #ddd;
-    border-radius: 8px;
+#payment-message {
+    color: #0B3D18;
+    font-weight: 700;
+    margin-top: 1em;
     text-align: center;
-}
-
-#file-preview {
-    margin: 1rem 0;
-}
-
-#file-preview img {
-    max-width: 100%;
-    max-height: 300px;
-    border-radius: 8px;
-}
-
-#file-preview .file-icon {
-    font-size: 3rem;
-    color: #3498db;
-}
-
-.hidden {
-    display: none;
-}
-
-.success-message {
-    background-color: #e8f8f0;
-    border: 1px solid #d1f2eb;
-    color: #27ae60;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-top: 1.5rem;
-}
-
-.success-message p {
-    margin-bottom: 0.5rem;
 }
 
 /* Responsive Styles */
@@ -206,38 +275,62 @@ main {
     }
 }
 
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
+.hidden {
+    display: none !important;
 }
 
-nav {
-    display: flex;
-    gap: 1rem;
-    margin: 0 1rem;
-}
-
-nav a {
-    color: white;
+/* File preview link styles */
+#file-preview a {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.6rem 1.2rem 0.6rem 2.2rem;
+    background: #F6F2D4;
+    color: #0B3D18;
+    border: 1.5px solid #85976C;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
     text-decoration: none;
-    padding: 0.5rem;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+    position: relative;
+    transition: background 0.2s, color 0.2s, border 0.2s;
+    box-shadow: 0 2px 8px rgba(11,61,24,0.07);
+    cursor: pointer;
+}
+#file-preview a:hover {
+    background: #B3AF87;
+    color: #0B3D18;
+    border-color: #0B3D18;
+    text-decoration: underline;
+}
+#file-preview a::before {
+    content: '\1F4CE'; /* paperclip emoji as icon */
+    position: absolute;
+    left: 0.7rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    opacity: 0.7;
+}
+#file-preview {
+    margin-bottom: 0.7rem;
 }
 
-nav a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+.alert {
+    padding: 1em 1.5em;
+    border-radius: 8px;
+    margin-bottom: 1em;
+    font-weight: 500;
+    background: #e6ffe6;
+    color: #0B3D18;
+    border: 1.5px solid #0B3D18;
 }
-
-@media (max-width: 768px) {
-    header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    nav {
-        margin: 1rem 0;
-    }
+.alert-success {
+    background: #e6ffe6;
+    color: #0B3D18;
+    border-color: #4CAF50;
+}
+.alert-error, .alert-danger {
+    background: #ffe6e6;
+    color: #b71c1c;
+    border-color: #b71c1c;
 }

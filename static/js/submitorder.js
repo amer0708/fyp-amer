@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - JavaScript is running');
+    
     // Form elements
     const orderForm = document.getElementById('orderForm');
+    console.log('Order form found:', orderForm);
     const hasCustomSizes = document.getElementById('hasCustomSizes');
     const customSizesSection = document.getElementById('customSizesSection');
     const maleCustomQty = document.getElementById('maleCustomQty');
@@ -74,47 +77,71 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Preview order
-        previewBtn.addEventListener('click', function() {
-            if (validateForm(true)) {
-                generatePreview();
-                previewModal.style.display = 'block';
-            }
-        });
+        // Preview order (only if preview button exists)
+        if (previewBtn) {
+            previewBtn.addEventListener('click', function() {
+                if (validateForm(true)) {
+                    generatePreview();
+                    previewModal.style.display = 'block';
+                }
+            });
+        }
 
         // Close modals
-        closeModal.forEach(btn => {
-            btn.addEventListener('click', function() {
-                sizeChartModal.style.display = 'none';
-                previewModal.style.display = 'none';
+        if (closeModal.length > 0) {
+            closeModal.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (sizeChartModal) sizeChartModal.style.display = 'none';
+                    if (previewModal) previewModal.style.display = 'none';
+                });
             });
-        });
+        }
 
-        closeSizeChartBtn.addEventListener('click', function() {
-            sizeChartModal.style.display = 'none';
-        });
+        if (closeSizeChartBtn) {
+            closeSizeChartBtn.addEventListener('click', function() {
+                if (sizeChartModal) sizeChartModal.style.display = 'none';
+            });
+        }
 
-        closePreviewBtn.addEventListener('click', function() {
-            previewModal.style.display = 'none';
-        });
+        if (closePreviewBtn) {
+            closePreviewBtn.addEventListener('click', function() {
+                if (previewModal) previewModal.style.display = 'none';
+            });
+        }
 
         window.addEventListener('click', function(e) {
             if (e.target === sizeChartModal || e.target === previewModal) {
-                sizeChartModal.style.display = 'none';
-                previewModal.style.display = 'none';
+                if (sizeChartModal) sizeChartModal.style.display = 'none';
+                if (previewModal) previewModal.style.display = 'none';
             }
         });
 
-        // Confirm order from preview
-        confirmOrderBtn.addEventListener('click', function() {
-            previewModal.style.display = 'none';
-            submitOrder();
-        });
+        // Confirm order from preview (only if confirm button exists)
+        if (confirmOrderBtn) {
+            confirmOrderBtn.addEventListener('click', function() {
+                if (previewModal) previewModal.style.display = 'none';
+                submitOrder();
+            });
+        }
 
-        // Form submission
+        // Handle submit button click directly
+        const submitOrderBtn = document.getElementById('submitOrderBtn');
+        if (submitOrderBtn) {
+            submitOrderBtn.addEventListener('click', function(e) {
+                console.log('Submit Order button clicked');
+                e.preventDefault();
+                submitOrder();
+            });
+        }
+
+        // Also keep form submission handler as backup
         orderForm.addEventListener('submit', function(e) {
+            console.log('Form submit event triggered');
             e.preventDefault();
+            e.stopPropagation();
+            console.log('Default prevented, calling submitOrder');
             submitOrder();
+            return false;
         });
 
         // Reset form
@@ -269,7 +296,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </thead>
                                 <tbody>
                     `;
-                    Object.entries(chart.measurements).forEach(([size, vals]) => {
+                    // Define the correct size order
+                    const sizeOrder = ['S', 'M', 'L', 'XL', 'XXL'];
+                    
+                    // Sort the measurements by the defined size order
+                    const sortedEntries = Object.entries(chart.measurements).sort((a, b) => {
+                        const aIndex = sizeOrder.indexOf(a[0]);
+                        const bIndex = sizeOrder.indexOf(b[0]);
+                        return aIndex - bIndex;
+                    });
+                    
+                    sortedEntries.forEach(([size, vals]) => {
                         html += `<tr>
                             <td>${size}</td>
                             <td>${vals.chest != null ? vals.chest : '-'}</td>
@@ -523,7 +560,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function submitOrder() {
-        if (!validateForm()) return;
+        console.log('submitOrder function called');
+        if (!validateForm()) {
+            console.log('Form validation failed');
+            return;
+        }
         
         // Collect standard sizes
         const standardSizes = {
@@ -532,10 +573,17 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         document.querySelectorAll('input[id^="male"], input[id^="female"]').forEach(input => {
+            // Skip custom quantity fields
+            if (input.id.includes('CustomQty')) {
+                console.log(`Skipping custom quantity field: ${input.id}`);
+                return;
+            }
+            
             const qty = parseInt(input.value) || 0;
             if (qty > 0) {
                 const gender = input.id.startsWith('male') ? 'male' : 'female';
                 const size = input.id.replace(/^male|^female/, '');
+                console.log(`Processing size: input.id='${input.id}', gender='${gender}', size='${size}' (length=${size.length}), quantity=${qty}`);
                 standardSizes[gender][size] = qty;
             }
         });
@@ -562,31 +610,51 @@ document.addEventListener('DOMContentLoaded', function() {
         if (hasCustomSizes.checked) {
             orderData.custom_sizes = [];
             const entries = customSizeEntries.querySelectorAll('.custom-entry');
-            entries.forEach(entry => {
+            entries.forEach((entry, index) => {
+                const chest = parseFloat(entry.querySelector('[name$="[chest]"]').value) || 0;
+                const waist = parseFloat(entry.querySelector('[name$="[waist]"]').value) || 0;
+                const hip = parseFloat(entry.querySelector('[name$="[hip]"]').value) || 0;
+                const shoulder = parseFloat(entry.querySelector('[name$="[shoulder]"]').value) || 0;
+                const sleeve = parseFloat(entry.querySelector('[name$="[sleeve]"]').value) || 0;
+                const shirtLength = parseFloat(entry.querySelector('[name$="[shirtLength]"]').value) || 0;
+                const neck = parseFloat(entry.querySelector('[name$="[neck]"]').value) || 0;
+                
+                console.log(`Custom size ${index + 1}: chest=${chest}, waist=${waist}, hip=${hip}, shoulder=${shoulder}, sleeve=${sleeve}, shirtLength=${shirtLength}, neck=${neck}`);
+                
+                const genderText = entry.textContent;
+                const gender = genderText.includes('Male') ? 'male' : 'female';
+                console.log(`Gender detection: text='${genderText}', detected='${gender}'`);
+                
                 orderData.custom_sizes.push({
-                    gender: entry.textContent.includes('Male') ? 'male' : 'female',
-                    chest: entry.querySelector('[name$="[chest]"]').value,
-                    waist: entry.querySelector('[name$="[waist]"]').value,
-                    hip: entry.querySelector('[name$="[hip]"]').value,
-                    shoulder: entry.querySelector('[name$="[shoulder]"]').value,
-                    sleeve: entry.querySelector('[name$="[sleeve]"]').value,
-                    shirtLength: entry.querySelector('[name$="[shirtLength]"]').value,
-                    neck: entry.querySelector('[name$="[neck]"]').value
+                    gender: gender,
+                    chest: chest,
+                    waist: waist,
+                    hip: hip,
+                    shoulder: shoulder,
+                    sleeve: sleeve,
+                    shirtLength: shirtLength,
+                    neck: neck
                 });
             });
         }
+
+        console.log('Order data to submit:', orderData);
 
         // Submit to server
         fetch('/submit_order/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             },
             body: JSON.stringify(orderData)
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('Response data:', data);
             if (data.status === 'success') {
                 window.location.href = `/order_confirmation/${data.order_id}/`;
             } else {

@@ -462,11 +462,29 @@ document.addEventListener('DOMContentLoaded', function() {
         if (state.currentView === 'front') {
             if (currentViewState.leftImage && currentViewState.rightImage) {
                 alert('Front view can only have 2 images (one on left and one on right)');
+                // Clear the input immediately and reset it
+                designImageUploadInput.value = '';
+                // Reset the input by cloning and replacing it
+                const newInput = designImageUploadInput.cloneNode(true);
+                designImageUploadInput.parentNode.replaceChild(newInput, designImageUploadInput);
+                // Re-add the event listener to the new input
+                newInput.addEventListener('change', handleDesignImageUpload);
+                // Update the reference
+                window.designImageUploadInput = newInput;
                 return;
             }
         } else {
             if (currentViewState.image) {
                 alert('This view can only have 1 image');
+                // Clear the input immediately and reset it
+                designImageUploadInput.value = '';
+                // Reset the input by cloning and replacing it
+                const newInput = designImageUploadInput.cloneNode(true);
+                designImageUploadInput.parentNode.replaceChild(newInput, designImageUploadInput);
+                // Re-add the event listener to the new input
+                newInput.addEventListener('change', handleDesignImageUpload);
+                // Update the reference
+                window.designImageUploadInput = newInput;
                 return;
             }
         }

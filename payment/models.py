@@ -17,6 +17,7 @@ class Payment(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     admin_remark = models.TextField(blank=True, null=True)
     admin_action_date = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.payment_id:

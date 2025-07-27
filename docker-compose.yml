@@ -6,7 +6,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "127.0.0.1:5432:5432"  # Only accessible from VPS
+      - "5433:5432"  # Only accessible from VPS
     env_file:
       - .env.docker
     environment:

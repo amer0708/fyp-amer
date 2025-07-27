@@ -1,11 +1,136 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Home - Waniey J. Tailor</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Wanie J. Tailor</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Karla:wght@300;400;500;600;700&display=swap');
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Karla', sans-serif;
+    }
+    body {
+      color: #fff;
+    }
+    .container {
+      width: 100%;
+      height: 100vh;
+      background-image: url("{% static 'images/back.jpg' %}");
+      background-position: center;
+      background-size: cover;
+      padding-top: 35px;
+      padding-left: 8%;
+      padding-right: 8%;
+    }
+    nav {
+      padding: 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo a {
+      font-size: 40px;
+      text-decoration: none;
+    }
+    span {
+      color: #f9cb00;
+    }
+    nav ul li {
+      display: inline-block;
+      list-style: none;
+      margin: 10px 15px;
+    }
+    nav ul li a {
+      text-decoration: none;
+      transition: 0.5s;
+    }
+    nav ul li a:hover {
+      color: #f9d400;
+    }
+    .login {
+      text-decoration: none;
+      margin-right: 15px;
+      font-size: 18px;
+    }
+    .btn {
+      background: #171715;
+      border-radius: 6px;
+      padding: 9px 25px;
+      text-decoration: none;
+      transition: 0.5s;
+      font-size: 18px;
+    }
+    .content {
+      margin-top: 10%;
+      max-width: 600px;
+    }
+    .content h2 {
+      font-size: 60px;
+    }
+    .content p {
+      margin-top: 10px;
+      line-height: 25px;
+    }
+    a {
+      color: #fff;
+    }
+    .link {
+      margin-top: 30px;
+    }
+    .hire {
+      color: #ff0000;
+      text-decoration: none;
+      background: #fff;
+      padding: 9px 25px;
+      font-weight: bold;
+      border-radius: 6px;
+      transition: 0.5s;
+    }
+    .link .hire:hover {
+      background: transparent;
+      border: 1px solid #fff;
+      color: #fff;
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+      gap: 0;
+    }
+    .logo-container img {
+      width: 40px;
+      height: auto;
+      margin-right: 5px;
+    }
+    .logo-text {
+      font-size: 40px;
+      display: inline-block;
+      letter-spacing: -0.5px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome to Waniey J. Tailor Home Page</h1>
-    <p>This is the home page.</p>
+  <div class="container">
+    <nav>
+      <a href="#" class="logo-container">
+        <img src="{% static 'images/waniey.png' %}" alt="Logo">
+        <div class="logo-text">Waniey J.<span class="studio"> Studio.</span></div>
+      </a>
+      <div class="buttons">
+        <a href="{% url 'login_customer' %}" class="login">Log in</a>
+        <a href="{% url 'signup' %}" class="btn">Register</a>
+      </div>
+    </nav>
+    <div class="content">
+      <h2>Crafted to Fit.<br>Designed to Impress.</h2>
+      <p>Welcome to a space where design meets identity<br>let's make something uniquely yours.</p>
+    </div>
+  </div>
 </body>
-</html> 
+</html>

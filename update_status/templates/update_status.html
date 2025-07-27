@@ -16,10 +16,6 @@
             </div>
             <nav class="admin-nav">
                 <a href="/admin_dashboard">Back to Dashboard</a>
-                <a href="review_order">Orders</a>
-                <a href="/confirm_payment">Payments</a>
-                <a href="/submit_quotation">Quotation</a>
-            </nav>
         </header>
 
         <div class="status-list">
@@ -35,8 +31,14 @@
                         {% for step in status_steps %}
                         <li class="status-progress-item">
                             <span class="status-circle
-                                {% if step == 'order review status' and order.review_rejected %} status-rejected
+                                {% if order.quotation_rejected and forloop.counter0 > 2 %} status-future
+                                {% elif order.review_rejected and forloop.counter0 > 1 %} status-future
+                                {% elif step == 'order review status' and order.review_rejected %} status-rejected
                                 {% elif step == 'receive price quotation' and order.quotation_rejected %} status-rejected
+                                {% elif step == 'payment status' and order.payment_rejected %} status-rejected
+                                {% elif order.quotation_rejected or order.review_rejected or order.payment_rejected %}
+                                    {% if forloop.counter0 <= order.status_index %} status-done
+                                    {% else %} status-future {% endif %}
                                 {% elif step == 'in progress' and not order.payment_rejected and order.status_index >= payment_status_index %} status-done
                                 {% elif forloop.counter0 < order.status_index %}
                                     {% if step == 'payment status' and order.payment_rejected %} status-rejected {% else %} status-done {% endif %}
@@ -82,7 +84,7 @@
                                 {% elif step == 'receive price quotation' and order.quotation_rejected %}
                                     <span style="color:#f44336;font-weight:600;">(Quotation Rejected)</span>
                                 {% elif step == 'payment status' and order.payment_rejected %}
-                                    <span style="color:#f44336;font-weight:600;">(Rejected)</span>
+                                    <span style="color:#f44336;font-weight:600;">(Payment Rejected)</span>
                                 {% endif %}
                             </span>
                             <div class="status-date-label">
@@ -99,14 +101,18 @@
                         {% endfor %}
                     </ul>
                 </div>
-                {% if not order.status == 'completed' and not updated %}
+                {% if not order.status == 'completed' and not updated and order.available_options %}
                 <div class="status-update-form">
                     <h4>Update Status</h4>
                     <form method="post" action="{% url 'update_order_status' order.id %}">
                         {% csrf_token %}
                         <select name="new_status" class="status-select" required>
                             <option value="">Select new status</option>
-                            <option value="completed">Completed</option>
+                            {% for option in order.available_options %}
+                                {% if option == 'completed' %}
+                                    <option value="completed">Completed - Ready to pickup</option>
+                                {% endif %}
+                            {% endfor %}
                         </select>
                         <button type="submit" class="update-status-btn">Update Status</button>
                     </form>

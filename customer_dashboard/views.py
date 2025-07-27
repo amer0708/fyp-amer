@@ -48,12 +48,21 @@ def customer_dashboard(request):
             if Payment.objects.filter(quotation=quotation, status='pending').exists():
                 pending_payment = True
         latest_quotation = order.quotations.order_by('-date').first() if hasattr(order, 'quotations') else None
+        # Check if any payment is rejected
+        payment_rejected = False
+        for quotation in order.quotations.all():
+            if Payment.objects.filter(quotation=quotation, status='rejected').exists():
+                payment_rejected = True
+                break
+        
         if review_rejected:
             order.display_status = 'Order Rejected'
         elif latest_quotation and getattr(latest_quotation, 'status', None) == 'rejected':
             order.display_status = 'Quotation Rejected'
+        elif payment_rejected:
+            order.display_status = 'Payment Rejected'
         elif order.status == 'completed':
-            order.display_status = 'Completed'
+            order.display_status = 'Completed - Ready to pickup'
         elif in_progress and order.status in ['payment status', 'in progress']:
             order.display_status = 'in progress'
         elif pending_payment:

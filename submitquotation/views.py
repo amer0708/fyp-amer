@@ -57,6 +57,8 @@ def submit_quotation(request, order_id):
                 customer_email = request.POST.get('customer_email')
                 customer_phone = request.POST.get('customer_phone')
                 print('Customer:', customer_name, customer_email, customer_phone)
+                print('Phone length:', len(customer_phone) if customer_phone else 0)
+                print('Phone value:', repr(customer_phone))
                 
                 if not (customer_name and customer_email and customer_phone):
                     messages.error(request, "All customer fields are required.")
@@ -71,25 +73,40 @@ def submit_quotation(request, order_id):
                     pass
                 
                 # Always set custom_customer
-                custom_customer_obj, _ = Customer.objects.get_or_create(
-                    email=customer_email,
-                    defaults={'name': customer_name, 'phone': customer_phone}
-                )
+                print('Creating customer with phone:', repr(customer_phone))
+                print('Phone length for database:', len(customer_phone) if customer_phone else 0)
+                try:
+                    custom_customer_obj, _ = Customer.objects.get_or_create(
+                        email=customer_email,
+                        defaults={'name': customer_name, 'phone': customer_phone}
+                    )
+                    print('Customer created successfully:', custom_customer_obj)
+                except Exception as e:
+                    print('Error creating customer:', e)
+                    print('Error type:', type(e))
+                    raise e
                 
                 # Create quotation
-                quotation = Quotation.objects.create(
-                    customer=user_customer if user_customer else None,
-                    custom_customer=custom_customer_obj,
-                    order=order if order else None,
-                    company_name=request.POST.get('company_name'),
-                    date=request.POST.get('date'),
-                    bank_name=request.POST.get('bank_name', 'RHB Bank'),
-                    account_name=request.POST.get('account_name', 'Waniey Tailor'),
-                    account_number=request.POST.get('account_number', '1234-5678-9012'),
-                    status='receive price quotation'
-                )
+                print('Creating quotation with status: pending')
+                try:
+                    quotation = Quotation.objects.create(
+                        customer=user_customer if user_customer else None,
+                        custom_customer=custom_customer_obj,
+                        order=order if order else None,
+                        company_name=request.POST.get('company_name'),
+                        date=request.POST.get('date'),
+                        bank_name=request.POST.get('bank_name', 'RHB Bank'),
+                        account_name=request.POST.get('account_name', 'Waniey Tailor'),
+                        account_number=request.POST.get('account_number', '1234-5678-9012'),
+                        status='pending'
+                    )
+                    print('Quotation created successfully:', quotation)
+                except Exception as e:
+                    print('Error creating quotation:', e)
+                    print('Error type:', type(e))
+                    raise e
                 if order:
-                    order.status = 'receive price quotation'
+                    order.status = 'payment status'
                     order.save()
                 print('Quotation object:', quotation)
                 

@@ -2,13 +2,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form elements
     const orderForm = document.getElementById('orderForm');
     const hasCustomSizes = document.getElementById('hasCustomSizes');
-    const hasNametags = document.getElementById('hasNametags');
     const customSizesSection = document.getElementById('customSizesSection');
-    const nametagsSection = document.getElementById('nametagsSection');
     const maleCustomQty = document.getElementById('maleCustomQty');
     const femaleCustomQty = document.getElementById('femaleCustomQty');
     const customSizeEntries = document.getElementById('customSizeEntries');
-    const nametagEntries = document.getElementById('nametagEntries');
     const sizeChartModal = document.getElementById('sizeChartModal');
     const previewModal = document.getElementById('previewModal');
     const previewBtn = document.getElementById('previewBtn');
@@ -19,16 +16,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmOrderBtn = document.getElementById('confirmOrder');
     const roleSelect = document.getElementById('role');
     const otherRoleGroup = document.getElementById('otherRoleGroup');
+    const urlParams = new URLSearchParams(window.location.search);
+    const designId = urlParams.get('design_id');
     
     // Data storage
-    let nametagData = {};
     let customSizeData = {};
     let customSizeCount = 0;
+    let activeSizeCharts = {}; // Will store active size chart data
 
     // Initialize form
     initForm();
 
     function initForm() {
+        // Set min date for deliveryDate input to today
+        const deliveryDateInput = document.getElementById('deliveryDate');
+        if (deliveryDateInput) {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const minDate = `${yyyy}-${mm}-${dd}`;
+            deliveryDateInput.setAttribute('min', minDate);
+        }
+        // Load active size charts
+        loadActiveSizeCharts();
+        
         // Event listeners for checkboxes
         hasCustomSizes.addEventListener('change', function() {
             customSizesSection.style.display = this.checked ? 'block' : 'none';
@@ -37,17 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 customSizeCount = 0;
                 maleCustomQty.value = 0;
                 femaleCustomQty.value = 0;
-            }
-            if (hasNametags.checked) updateNametagEntries();
-        });
-
-        hasNametags.addEventListener('change', function() {
-            nametagsSection.style.display = this.checked ? 'block' : 'none';
-            if (this.checked) {
-                updateNametagEntries();
-            } else {
-                nametagEntries.innerHTML = '';
-                nametagData = {};
             }
         });
 
@@ -65,14 +66,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Quantity change handlers
         maleCustomQty.addEventListener('change', updateCustomSizeEntries);
         femaleCustomQty.addEventListener('change', updateCustomSizeEntries);
-
-        // Standard size quantity changes
-        const sizeInputs = document.querySelectorAll('input[name^="male"], input[name^="female"]');
-        sizeInputs.forEach(input => {
-            input.addEventListener('change', function() {
-                if (hasNametags.checked) updateNametagEntries();
-            });
-        });
 
         // View size chart
         document.addEventListener('click', function(e) {
@@ -115,43 +108,23 @@ document.addEventListener('DOMContentLoaded', function() {
         // Confirm order from preview
         confirmOrderBtn.addEventListener('click', function() {
             previewModal.style.display = 'none';
-            orderForm.submit();
+            submitOrder();
         });
 
         // Form submission
         orderForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            if (validateForm()) {
-                alert('Order submitted successfully!');
-                const formData = new FormData(orderForm);
-                const data = {};
-                formData.forEach((value, key) => {
-                    if (data[key] !== undefined) {
-                        if (!Array.isArray(data[key])) {
-                            data[key] = [data[key]];
-                        }
-                        data[key].push(value);
-                    } else {
-                        data[key] = value;
-                    }
-                });
-                console.log('Form Data:', data);
-            }
+            submitOrder();
         });
 
         // Reset form
         orderForm.addEventListener('reset', function() {
             customSizesSection.style.display = 'none';
-            nametagsSection.style.display = 'none';
             hasCustomSizes.checked = false;
-            hasNametags.checked = false;
             customSizeEntries.innerHTML = '';
-            nametagEntries.innerHTML = '';
             customSizeCount = 0;
             maleCustomQty.value = 0;
             femaleCustomQty.value = 0;
-            nametagData = {};
             customSizeData = {};
             otherRoleGroup.style.display = 'none';
             const errorFields = orderForm.querySelectorAll('[style*="border-color: red"]');
@@ -159,6 +132,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 field.style.borderColor = '#ddd';
             });
         });
+    }
+
+    function loadActiveSizeCharts() {
+        // Fetch active size charts from backend
+        fetch('/get_active_size_charts/')
+            .then(response => response.json())
+            .then(data => {
+                activeSizeCharts = data;
+            })
+            .catch(error => {
+                console.error('Error loading size charts:', error);
+                // Fallback to default sizes
+                activeSizeCharts = {
+                    male: {
+                        standard: {
+                            measurements: {
+                                'S': {}, 'M': {}, 'L': {}, 'XL': {}, 'XXL': {}
+                            }
+                        }
+                    },
+                    female: {
+                        standard: {
+                            measurements: {
+                                'S': {}, 'M': {}, 'L': {}, 'XL': {}, 'XXL': {}
+                            }
+                        }
+                    }
+                };
+            });
     }
 
     function updateCustomSizeEntries() {
@@ -177,8 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 shoulder: entry.querySelector(`[name$="[shoulder]"]`).value,
                 sleeve: entry.querySelector(`[name$="[sleeve]"]`).value,
                 shirtLength: entry.querySelector(`[name$="[shirtLength]"]`).value,
-                neck: entry.querySelector(`[name$="[neck]"]`).value,
-                nametag: hasNametags.checked ? entry.querySelector(`[name$="[nametag]"]`)?.value : null
+                neck: entry.querySelector(`[name$="[neck]"]`).value
             };
         });
         
@@ -234,71 +235,105 @@ document.addEventListener('DOMContentLoaded', function() {
                             value="${customSizeData[entryId]?.neck || ''}">
                     </div>
                 </div>
-                ${hasNametags.checked ? `
-                <div class="form-group">
-                    <label for="${entryId}-nametag">Nametag Name*</label>
-                    <input type="text" id="${entryId}-nametag" name="customSizes[${customSizeCount}][nametag]" required
-                        value="${customSizeData[entryId]?.nametag || ''}">
-                </div>
-                ` : ''}
             `;
             
             customSizeEntries.appendChild(entryDiv);
         }
-        
-        if (hasNametags.checked) updateNametagEntries();
     }
 
-    function updateNametagEntries() {
-        if (!hasNametags.checked) return;
-        
-        // Save existing data
-        const entries = nametagEntries.querySelectorAll('.nametag-entry');
-        entries.forEach(entry => {
-            const id = entry.id;
-            const nameInput = entry.querySelector('input[type="text"]');
-            if (nameInput) {
-                nametagData[id] = nameInput.value;
-            }
-        });
-        
-        // Clear and recreate entries
-        nametagEntries.innerHTML = '';
-        let nametagIndex = 0;
-        
-        const standardSizes = ['maleS', 'maleM', 'maleL', 'maleXL', 'maleXXL', 'femaleS', 'femaleM', 'femaleL', 'femaleXL', 'femaleXXL'];
-        
-        standardSizes.forEach(size => {
-            const qty = parseInt(document.getElementById(size).value) || 0;
-            if (qty > 0) {
-                const gender = size.startsWith('male') ? 'Male' : 'Female';
-                const sizeLabel = size.replace(/^male|^female/, '');
-                
-                for (let i = 0; i < qty; i++) {
-                    nametagIndex++;
-                    const entryId = `nametag-${nametagIndex}`;
-                    
-                    const entryDiv = document.createElement('div');
-                    entryDiv.className = 'nametag-entry';
-                    entryDiv.id = entryId;
-                    
-                    entryDiv.innerHTML = `
-                        <h4>Nametag ${nametagIndex} (${gender} ${sizeLabel})</h4>
-                        <div class="form-group">
-                            <label for="${entryId}-name">Name*</label>
-                            <input type="text" id="${entryId}-name" name="nametags[${nametagIndex}][name]" required
-                                value="${nametagData[entryId] || ''}">
+    function showSizeChartModal() {
+        let html = '';
+
+        // Helper to capitalize
+        function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+        // Loop through all genders and types
+        ['male', 'female', 'unisex'].forEach(gender => {
+            ['standard', 'numeric'].forEach(type => {
+                const chart = activeSizeCharts[gender]?.[type];
+                if (chart && chart.measurements && Object.keys(chart.measurements).length > 0) {
+                    html += `
+                        <div style="margin-bottom:2em;">
+                            <div style="font-weight:bold;">Name: ${chart.name || '-'}</div>
+                            <div style="font-weight:bold;">Gender: ${cap(gender)}</div>
+                            <div style="font-weight:bold;">Type: ${cap(type)}</div>
+                            <table style="width:100%;margin-top:0.5em;">
+                                <thead>
+                                    <tr>
+                                        <th>Size</th>
+                                        <th>Chest</th>
+                                        <th>Waist</th>
+                                        <th>Hip</th>
+                                        <th>Sleeve</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    Object.entries(chart.measurements).forEach(([size, vals]) => {
+                        html += `<tr>
+                            <td>${size}</td>
+                            <td>${vals.chest != null ? vals.chest : '-'}</td>
+                            <td>${vals.waist != null ? vals.waist : '-'}</td>
+                            <td>${vals.hip != null ? vals.hip : '-'}</td>
+                            <td>${vals.sleeve != null ? vals.sleeve : '-'}</td>
+                        </tr>`;
+                    });
+                    html += `
+                                </tbody>
+                            </table>
                         </div>
                     `;
-                    
-                    nametagEntries.appendChild(entryDiv);
                 }
-            }
+            });
         });
+
+        if (!html) {
+            html = `<div>No size chart data available.</div>`;
+        }
+
+        sizeChartModal.querySelector('.modal-content h3').innerHTML = 'Standard Size Chart (in inches)';
+        sizeChartModal.querySelector('#dynamicSizeChartTable').innerHTML = html;
+        sizeChartModal.style.display = 'block';
     }
 
     function generatePreview() {
-        let previewHTML = `
+        // Get the design image if available
+        const designImg = document.querySelector('.design-preview-image');
+        let designImgHtml = '';
+
+        if (designImg) {
+            designImgHtml = `
+                <div class="preview-design-image">
+                    <h3>Your Design</h3>
+                    <img src="${designImg.src}" alt="Design Preview" style="max-width: 300px;">
+                 </div>`;
+        } else {
+            const svgContainer = document.querySelector('.svg-preview-container');
+            if (svgContainer) {
+                designImgHtml = `
+                    <div class="preview-design-image">
+                        <h3>Your Design</h3>
+                        <div class="svg-preview-container">${svgContainer.innerHTML}</div>
+                    </div>`;
+            }
+        }
+
+        // Collect standard sizes
+        const standardSizes = {
+            male: {},
+            female: {}
+        };
+        
+        document.querySelectorAll('input[id^="male"], input[id^="female"]').forEach(input => {
+            const qty = parseInt(input.value) || 0;
+            if (qty > 0) {
+                const gender = input.id.startsWith('male') ? 'male' : 'female';
+                const size = input.id.replace(/^male|^female/, '');
+                standardSizes[gender][size] = qty;
+            }
+        });
+
+        let previewHTML = designImgHtml + `
             <div class="preview-section">
                 <h3>Customer Details</h3>
                 <table class="preview-table">
@@ -333,10 +368,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td>${hasCustomSizes.checked ? 'Yes' : 'No'}</td>
                     </tr>
                     <tr>
-                        <th>Nametags</th>
-                        <td>${hasNametags.checked ? 'Yes' : 'No'}</td>
-                    </tr>
-                    <tr>
                         <th>Completion Date</th>
                         <td>${document.getElementById('deliveryDate').value}</td>
                     </tr>
@@ -351,42 +382,23 @@ document.addEventListener('DOMContentLoaded', function() {
                             <th>Size</th>
                             <th>Male</th>
                             <th>Female</th>
-                            ${hasNametags.checked ? '<th>Nametag</th>' : ''}
                         </tr>
                     </thead>
                     <tbody>
-                        ${['S', 'M', 'L', 'XL', 'XXL'].map(size => {
-                            const maleQty = parseInt(document.getElementById(`male${size}`).value) || 0;
-                            const femaleQty = parseInt(document.getElementById(`female${size}`).value) || 0;
-                            let maleNametags = '';
-                            let femaleNametags = '';
-                            
-                            if (hasNametags.checked) {
-                                const entries = Array.from(nametagEntries.querySelectorAll('.nametag-entry'));
-                                const sizeEntries = entries.filter(entry => entry.textContent.includes(`${size}`));
+                        ${Object.keys(standardSizes.male).concat(Object.keys(standardSizes.female))
+                            .filter((v, i, a) => a.indexOf(v) === i) // Unique sizes
+                            .map(size => {
+                                const maleQty = standardSizes.male[size] || 0;
+                                const femaleQty = standardSizes.female[size] || 0;
                                 
-                                maleNametags = sizeEntries.filter((_, i) => i < maleQty)
-                                    .map(entry => entry.querySelector('input').value)
-                                    .join(', ');
-                                femaleNametags = sizeEntries.filter((_, i) => i >= maleQty)
-                                    .map(entry => entry.querySelector('input').value)
-                                    .join(', ');
-                            }
-                            
-                            return `
-                                <tr>
-                                    <td>${size}</td>
-                                    <td>${maleQty}</td>
-                                    <td>${femaleQty}</td>
-                                    ${hasNametags.checked ? `
-                                        <td>
-                                            ${maleQty > 0 ? `<strong>Male:</strong> ${maleNametags || 'Not specified'}<br>` : ''}
-                                            ${femaleQty > 0 ? `<strong>Female:</strong> ${femaleNametags || 'Not specified'}` : ''}
-                                        </td>
-                                    ` : ''}
-                                </tr>
-                            `;
-                        }).join('')}
+                                return `
+                                    <tr>
+                                        <td>${size}</td>
+                                        <td>${maleQty}</td>
+                                        <td>${femaleQty}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
                     </tbody>
                 </table>
             </div>
@@ -425,7 +437,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <th>Sleeve</th>
                                     <th>Length</th>
                                     <th>Neck</th>
-                                    ${hasNametags.checked ? '<th>Nametag</th>' : ''}
                                 </tr>
                             </thead>
                             <tbody>
@@ -438,7 +449,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                     const sleeve = entry.querySelector('[name$="[sleeve]"]').value || 'Not specified';
                                     const shirtLength = entry.querySelector('[name$="[shirtLength]"]').value || 'Not specified';
                                     const neck = entry.querySelector('[name$="[neck]"]').value || 'Not specified';
-                                    const nametag = hasNametags.checked ? (entry.querySelector('[name$="[nametag]"]')?.value || 'Not specified') : '';
                                     
                                     return `
                                         <tr>
@@ -451,7 +461,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <td>${sleeve}"</td>
                                             <td>${shirtLength}"</td>
                                             <td>${neck}"</td>
-                                            ${hasNametags.checked ? `<td>${nametag}</td>` : ''}
                                         </tr>
                                     `;
                                 }).join('')}
@@ -467,30 +476,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function validateForm(isPreview = false) {
         let isValid = true;
-        
-        // Validate required fields
         const requiredFields = orderForm.querySelectorAll('[required]');
+        
+        // Clear previous errors
+        requiredFields.forEach(f => f.style.borderColor = '#ddd');
+
         requiredFields.forEach(field => {
-            if (!field.value.trim()) {
+            // Check if field is visible and empty
+            if (field.offsetParent !== null && !field.value.trim()) {
                 field.style.borderColor = 'red';
                 isValid = false;
-                if (!isPreview) {
-                    alert('Please fill in all required fields.');
-                }
-            } else {
-                field.style.borderColor = '#ddd';
             }
         });
+
+        if (!isValid && !isPreview) {
+            alert('Please fill in all required fields marked in red.');
+        }
         
         // Validate at least one standard size has quantity
-        const standardSizeInputs = document.querySelectorAll('input[name^="male"], input[name^="female"]');
-        let hasStandardQuantities = false;
-        
-        standardSizeInputs.forEach(input => {
-            if (parseInt(input.value) > 0) {
-                hasStandardQuantities = true;
-            }
-        });
+        const standardSizeInputs = document.querySelectorAll('input[id^="male"], input[id^="female"]');
+        const hasStandardQuantities = Array.from(standardSizeInputs).some(input => (parseInt(input.value) || 0) > 0);
         
         if (!hasStandardQuantities && !hasCustomSizes.checked) {
             if (!isPreview) {
@@ -503,18 +508,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (hasCustomSizes.checked) {
             const maleQty = parseInt(maleCustomQty.value) || 0;
             const femaleQty = parseInt(femaleCustomQty.value) || 0;
+            const totalCustomQty = maleQty + femaleQty;
             const customEntries = customSizeEntries.querySelectorAll('.custom-entry').length;
             
-            if ((maleQty + femaleQty) > 0 && customEntries === 0) {
+            if (totalCustomQty !== customEntries) {
                 if (!isPreview) {
-                    alert('Please add custom size measurements for the custom quantities specified.');
-                }
-                isValid = false;
-            }
-            
-            if (customEntries > 0 && (maleQty + femaleQty) === 0) {
-                if (!isPreview) {
-                    alert('Please specify custom size quantities.');
+                    alert('The number of custom size entries must match the total custom quantity specified.');
                 }
                 isValid = false;
             }
@@ -523,117 +522,95 @@ document.addEventListener('DOMContentLoaded', function() {
         return isValid;
     }
 
-    function showSizeChartModal() {
-        const sizeCharts = JSON.parse(localStorage.getItem('sizeCharts')) || [];
+    function submitOrder() {
+        if (!validateForm()) return;
         
-        // Get active charts (or first available if none active)
-        const getActiveChart = (gender, sizeType) => {
-            const active = sizeCharts.find(c => 
-                c.gender === gender && 
-                c.sizeType === sizeType && 
-                c.isActive
-            );
-            
-            return active || sizeCharts.find(c => 
-                c.gender === gender && 
-                c.sizeType === sizeType
-            );
+        // Collect standard sizes
+        const standardSizes = {
+            male: {},
+            female: {}
+        };
+        
+        document.querySelectorAll('input[id^="male"], input[id^="female"]').forEach(input => {
+            const qty = parseInt(input.value) || 0;
+            if (qty > 0) {
+                const gender = input.id.startsWith('male') ? 'male' : 'female';
+                const size = input.id.replace(/^male|^female/, '');
+                standardSizes[gender][size] = qty;
+            }
+        });
+
+        // Prepare order data
+        const orderData = {
+            design_id: designId || '',
+            customer_details: {
+                fullName: document.getElementById('fullName').value,
+                companyName: document.getElementById('companyName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                role: roleSelect.value,
+                otherRole: roleSelect.value === 'other' ? document.getElementById('otherRole').value : ''
+            },
+            order_options: {
+                hasCustomSizes: hasCustomSizes.checked,
+                deliveryDate: document.getElementById('deliveryDate').value
+            },
+            standard_sizes: standardSizes
         };
 
-        const maleChart = getActiveChart('male', 'standard');
-        const femaleChart = getActiveChart('female', 'standard');
+        // Add custom sizes if enabled
+        if (hasCustomSizes.checked) {
+            orderData.custom_sizes = [];
+            const entries = customSizeEntries.querySelectorAll('.custom-entry');
+            entries.forEach(entry => {
+                orderData.custom_sizes.push({
+                    gender: entry.textContent.includes('Male') ? 'male' : 'female',
+                    chest: entry.querySelector('[name$="[chest]"]').value,
+                    waist: entry.querySelector('[name$="[waist]"]').value,
+                    hip: entry.querySelector('[name$="[hip]"]').value,
+                    shoulder: entry.querySelector('[name$="[shoulder]"]').value,
+                    sleeve: entry.querySelector('[name$="[sleeve]"]').value,
+                    shirtLength: entry.querySelector('[name$="[shirtLength]"]').value,
+                    neck: entry.querySelector('[name$="[neck]"]').value
+                });
+            });
+        }
 
-        let html = '';
-        
-        if (maleChart) {
-            html += `<h3>${maleChart.isActive ? '' : '(Fallback) '}Male Standard Size Chart</h3>`;
-            html += generateSizeChartHTML(maleChart);
-        } else {
-            html += '<h3>Male Standard Size Chart (Default)</h3>';
-            html += generateDefaultSizeChartHTML('male');
-        }
-        
-        if (femaleChart) {
-            html += '<hr>';
-            html += `<h3>${femaleChart.isActive ? '' : '(Fallback) '}Female Standard Size Chart</h3>`;
-            html += generateSizeChartHTML(femaleChart);
-        } else {
-            html += '<hr><h3>Female Standard Size Chart (Default)</h3>';
-            html += generateDefaultSizeChartHTML('female');
-        }
-        
-        const sizeChartModal = document.getElementById('sizeChartModal');
-        sizeChartModal.querySelector('.modal-content h3').innerHTML = 'Standard Size Chart (in inches)';
-        sizeChartModal.querySelector('table').innerHTML = html;
-        sizeChartModal.style.display = 'block';
+        // Submit to server
+        fetch('/submit_order/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(orderData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = `/order_confirmation/${data.order_id}/`;
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while submitting the order.');
+        });
     }
 
-    function generateSizeChartHTML(chart) {
-        const sizes = Object.keys(chart.measurements);
-        const measurements = sizes.length > 0 ? Object.keys(chart.measurements[sizes[0]]) : [];
-        
-        let html = `
-            <thead>
-                <tr>
-                    <th>Size</th>
-                    ${measurements.map(m => `<th>${m.charAt(0).toUpperCase() + m.slice(1)}</th>`).join('')}
-                </tr>
-            </thead>
-            <tbody>
-        `;
-        
-        sizes.forEach(size => {
-            html += `<tr><td>${size}</td>`;
-            measurements.forEach(mType => {
-                html += `<td>${chart.measurements[size][mType]}</td>`;
-            });
-            html += `</tr>`;
-        });
-        
-        html += `</tbody>`;
-        return html;
-    }
-    
-    function generateDefaultSizeChartHTML(gender) {
-        const defaultMale = {
-            "S": {"chest":"34-36","waist":"28-30","hip":"34-36","sleeve":"32","neck":"14-14.5"},
-            "M": {"chest":"38-40","waist":"32-34","hip":"38-40","sleeve":"33","neck":"15-15.5"},
-            "L": {"chest":"42-44","waist":"36-38","hip":"42-44","sleeve":"34","neck":"16-16.5"},
-            "XL": {"chest":"46-48","waist":"40-42","hip":"46-48","sleeve":"35","neck":"17-17.5"},
-            "XXL": {"chest":"50-52","waist":"44-46","hip":"50-52","sleeve":"36","neck":"18-18.5"}
-        };
-        
-        const defaultFemale = {
-            "S": {"chest":"32-34","waist":"24-26","hip":"34-36","sleeve":"30","neck":"12-12.5"},
-            "M": {"chest":"36-38","waist":"28-30","hip":"38-40","sleeve":"31","neck":"13-13.5"},
-            "L": {"chest":"40-42","waist":"32-34","hip":"42-44","sleeve":"32","neck":"14-14.5"},
-            "XL": {"chest":"44-46","waist":"36-38","hip":"44-46","sleeve":"33","neck":"15-15.5"},
-            "XXL": {"chest":"48-50","waist":"40-42","hip":"48-50","sleeve":"34","neck":"16-16.5"}
-        };
-        
-        const defaultChart = gender === 'male' ? defaultMale : defaultFemale;
-        const sizes = Object.keys(defaultChart);
-        const measurements = sizes.length > 0 ? Object.keys(defaultChart[sizes[0]]) : [];
-        
-        let html = `
-            <thead>
-                <tr>
-                    <th>Size</th>
-                    ${measurements.map(m => `<th>${m.charAt(0).toUpperCase() + m.slice(1)}</th>`).join('')}
-                </tr>
-            </thead>
-            <tbody>
-        `;
-        
-        sizes.forEach(size => {
-            html += `<tr><td>${size}</td>`;
-            measurements.forEach(mType => {
-                html += `<td>${defaultChart[size][mType]}</td>`;
-            });
-            html += `</tr>`;
-        });
-        
-        html += `</tbody>`;
-        return html;
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 });

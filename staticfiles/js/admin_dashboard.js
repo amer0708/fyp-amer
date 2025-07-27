@@ -26,19 +26,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p>${customer.phone}</p>
                 </div>
                 <div class="customer-actions">
-                    <button class="select-customer-btn">Select</button>
+                    <a href="/review_order" class="view-order-btn">View Order</a>
+                    <a href="/submitquotation/" class="submit-quotation-btn">Submit Price Quotation</a>
+                    <a href="/confirm_payment" class="confirm-payment-btn">Confirm Payment</a>
+                    <a href="/update_status" class="update-status-btn">Update Status</a>
                 </div>
             `;
             
             customerList.appendChild(customerCard);
-        });
-
-        document.querySelectorAll('.select-customer-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const customerId = this.closest('.customer-card').dataset.customerId;
-                sessionStorage.setItem('selectedCustomerId', customerId);
-                window.location.href = "/review_order";
-            });
         });
     }
 
